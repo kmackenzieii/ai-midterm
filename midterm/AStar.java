@@ -5,23 +5,67 @@ import java.awt.Cell;
 
 
 
+/**
+ * Defines a Quagent capable of finding and navigating to tofu in undisclosed
+ *	locations, inside a room of unknown layout
+ */
 class AStar extends Quagent{
+	
+	/**
+	 *
+	 */
 	final static int CELL_SIZE = 64;
+	
+	/**
+	 *
+	 */
 	private static Graph room;
+	
+	/**
+	 *
+	 */
 	private ArrayList<Cell> explored;
+	
+	/**
+	 *
+	 */
 	private Cell next;
+	
+	/**
+	 *
+	 */
 	private Stack<Cell> path;
-    private Events events;
+	
+	/**
+	 *
+	 */
+	private Events events;
+	
+	/**
+	 *
+	 */
 	private int DIST = 1;
+	
+	/**
+	 *
+	 */
 	private double x,y,z,roll,pitch,yaw,velocity;
- 
+	
+	/**
+	 *
+	 */
 	private enum State{
 		START, CHASING
 	}
+	
+	/**
+	 *
+	 */
 	private State state;
 	
-	
-	
+	/**
+	 *
+	 */
 	private Stack a_star(Cell start, Cell goal){
 		ArrayList<Cell> closedset = new ArrayList<Cell>();    // The set of nodes already evaluated.
 		ArrayList<Cell> openset = new ArrayList<Cell>(); 
@@ -67,6 +111,9 @@ class AStar extends Quagent{
 		return null;
 	}
 	
+	/**
+	 *
+	 */
 	private Stack reconstruct_path(HashMap<Cell, Cell> cameFrom, Cell current){
 		Stack<Cell> total_path = new Stack<Cell>();
 		total_path.push(current);
@@ -77,8 +124,9 @@ class AStar extends Quagent{
 		return total_path;
 	}
 	
-	
-	
+	/**
+	 *
+	 */
     public static void main(String[] args) throws Exception {
 	
 		//Build the room
@@ -87,7 +135,10 @@ class AStar extends Quagent{
 		//Make quagent
 		new AStar();
     }
-
+	
+	/**
+	 *
+	 */
     AStar() throws Exception {
 		super();
 		try {
@@ -110,14 +161,20 @@ class AStar extends Quagent{
 			System.exit(0);
 		}
     }
-
+	
+	/**
+	 *
+	 */
     public void printEvents(Events events) {
 		System.out.println("List of Events:");
 		for (int ix = 0; ix < events.size(); ix++) {
 			System.out.println(events.eventAt(ix));
 		}
     }
-
+	
+	/**
+	 *
+	 */
     public void parseWalkEvents(Events events) {
 		for (int ix = 0; ix < events.size(); ix++) {
 			String e = events.eventAt(ix);
