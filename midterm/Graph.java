@@ -1,11 +1,39 @@
 import java.util.*;
+
+/**
+ * Defines a graph of vertices and edges. Each vertex is a cell, and each edge
+ *	is a connection between two cels
+ */
 class Graph{
+	
+	/**
+	 * Width of each cell
+	 */
 	private final int cell_size;
+	
+	/**
+	 * Array list of vertices
+	 */
 	private ArrayList<Cell> vertices;
+	
+	/**
+	 * Hash map of cells, each bound to an array list of neighboring cells
+	 */
 	private HashMap<Cell, ArrayList<Cell>> edges;
+	
+	/**
+	 * Number of edges
+	 */
 	private int E;
+	
+	/**
+	 * Number of vertices
+	 */
 	private int V;
 	
+	/**
+	 * Constructor initializes variables
+	 */
 	public Graph(int cell_size){
 		this.cell_size = cell_size;
 		this.vertices = new ArrayList<Cell>();
@@ -14,18 +42,30 @@ class Graph{
 		this.V = 0;
 	}
 	
+	/**
+	 * Accessor method for number of vertices
+	 */
 	public int V(){
 		return V;
 	}
 	
+	/**
+	 * Accessor method for number of edges
+	 */
 	public int E(){
 		return E;
 	}
 	
+	/**
+	 * Determines whether the graph contains the passed in cell
+	 */
 	public boolean contains(Cell v){
 		return vertices.contains(v);
 	}
 	
+	/**
+	 * Add the passed in cell to the graph.
+	 */
 	public void addVertex(Cell v){
 		if(!this.contains(v)){
 			vertices.add(v);
@@ -45,6 +85,9 @@ class Graph{
 		}
 	}
 	
+	/**
+	 * Adds a line according to Bresenham's algorithm
+	 */
 	public void addLine(Cell w, Cell v){
 		int y0 = w.y / cell_size;
 		int y1 = v.y / cell_size;
@@ -66,6 +109,9 @@ class Graph{
 		}
 	}
 	
+	/**
+	 * Create an edge between the passed in cells (vertices)
+	 */
 	public void addEdge(Cell w, Cell v){
 		if(this.contains(w) && this.contains(v)){
 			E++;
@@ -74,15 +120,21 @@ class Graph{
 		}
 	}
 	
+	/**
+	 * Remove the edge between the passed in cells (vertices)
+	 */
 	public void removeEdge(Cell w, Cell v){
 		if(this.contains(w) && this.contains(v)
-				&& edges.get(w).contains(v){
+				&& edges.get(w).contains(v)) {
 			E--;
 			edges.get(w).remove(v);
 			edges.get(v).remove(w);
 		}
 	}
 	
+	/**
+	 * Returns the neighbors of the passed in cell, as defined by the it's edges
+	 */
 	public ArrayList<Cell> getNeighbors(Cell v){
 		return edges.get(v);
 	}
