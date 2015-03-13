@@ -27,39 +27,34 @@ class AStar extends Quagent{
 	private ArrayList<Cell> explored;
 	
 	/**
-	 *
+	 * Instance variable for the next cell to iterate through
 	 */
 	private Cell next;
 	
 	/**
-	 *
+	 * Path
 	 */
 	private Stack<Cell> path;
 	
 	/**
-	 *
+	 * Events
 	 */
 	private Events events;
 	
 	/**
-	 *
-	 */
-	private int DIST = 1;
-	
-	/**
-	 *
+	 * Reference frame of the quagent
 	 */
 	private double x,y,z,roll,pitch,yaw,velocity;
 	
 	/**
-	 *
+	 * Enumeration to describe the state of the agent
 	 */
 	private enum State{
 		START, CHASING
 	}
 	
 	/**
-	 *
+	 * State of the ngent
 	 */
 	private State state;
 	
