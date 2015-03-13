@@ -5,35 +5,91 @@ import java.awt.Cell;
 
 
 
+/**
+ * Defines a Quagent capable of finding and navigating to tofu in undisclosed
+ *	locations, inside a room of unknown layout
+ */
 class AStar extends Quagent{
+	
+	/**
+	 * Size of each cell in the graph
+	 */
 	final static int CELL_SIZE = 64;
+	
+	/**
+	 * Graph to hold a map of the room
+	 */
 	private static Graph room;
+	
+	/**
+	 * Array list of explored cells
+	 */
 	private ArrayList<Cell> explored;
+	
+	/**
+	 *
+	 */
 	private Cell next;
+	
+	/**
+	 *
+	 */
 	private Stack<Cell> path;
-    private Events events;
+	
+	/**
+	 *
+	 */
+	private Events events;
+	
+	/**
+	 *
+	 */
 	private int DIST = 1;
+	
+	/**
+	 *
+	 */
 	private double x,y,z,roll,pitch,yaw,velocity;
- 
+	
+	/**
+	 *
+	 */
 	private enum State{
 		START, CHASING
 	}
+	
+	/**
+	 *
+	 */
 	private State state;
 	
-	
-	
+	/**
+	 * Actual implementation of the A* algorithm
+	 */
 	private Stack a_star(Cell start, Cell goal){
-		ArrayList<Cell> closedset = new ArrayList<Cell>();    // The set of nodes already evaluated.
-		ArrayList<Cell> openset = new ArrayList<Cell>(); 
-		openset.add(start);    // The set of tentative nodes to be evaluated, initially containing the start node
-		HashMap<Cell, Cell> cameFrom = new HashMap<Cell, Cell>();    // The map of navigated nodes.
+		// The set of nodes already evaluated.
+		ArrayList<Cell> closedset = new ArrayList<Cell>();
+		ArrayList<Cell> openset = new ArrayList<Cell>();
+		
+		// The set of tentative nodes to be evaluated,
+		//	initially containing the start node
+		openset.add(start);
+		
+		// Nodes mapped to their parents
+		HashMap<Cell, Cell> cameFrom = new HashMap<Cell, Cell>();
+		
+		// Table of g (distance from start) and f scores
 		HashMap<Cell, Integer> g_score = new HashMap<Cell, Integer>(); 
 		HashMap<Cell, Integer> f_score = new HashMap<Cell, Integer>(); 
 		
+		// The initial g score is zero
 		g_score.put(start, new Integer(0));    // Cost from start along best known path.
 		f_score.put(start, new Integer(g_score.get(start) + (int)start.distance(goal)));
 	 
+		// Iterate until we are certain that no path was found
 		while (!openset.isEmpty()){
+			
+			// Get the cell witht eh best f score in the open list
 			Cell current = openset.get(0);
 			Integer current_f = f_score.get(current);
 			for (Cell p : openset){
@@ -42,31 +98,51 @@ class AStar extends Quagent{
 					current = p;
 				}
 			}
+			
+			// If the current node is the goal, we are done
 			if (current.equals(goal)){
 				return reconstruct_path(cameFrom, goal);
 			}
+			
+			// Otherwise, take the cell off the open list and
+			//	add it to the closed list
 			openset.remove(current);
 			closedset.add(current);
+			
 			System.out.println("Hey " + current);
+			
+			// Go through each neighbor of the cell
 			for (Cell neighbor : room.getNeighbors(current)){
-				if (closedset.contains(neighbor)){
+				
+				// Skip cells already in the closed list
+				if (closedset.contains(neighbor))
 					continue;
-				}
+				
+				// Calculate the g score
 				Integer tentative_g_score = new Integer(g_score.get(current) + (int)current.distance(neighbor));
 				
+				// If going through the current node is better than going
+				//	through the neighbor's current parent, change its parent
 				if (!openset.contains(neighbor) || tentative_g_score < g_score.get(neighbor)){
+					
 					cameFrom.put(neighbor, current);
 					g_score.put(neighbor, tentative_g_score);
 					f_score.put(neighbor, new Integer(g_score.get(neighbor) + (int)neighbor.distance(goal)));
-					if (!openset.contains(neighbor)){
+					
+					// Add the neighbor to the open list if it isn't already
+					if (!openset.contains(neighbor))
 						openset.add(neighbor);
-					}
+					
 				}
 			}
 		}
 		return null;
 	}
 	
+	/**
+	 * Reconstructs the path from the current cell through the passed in map
+	 *	of parents
+	 */
 	private Stack reconstruct_path(HashMap<Cell, Cell> cameFrom, Cell current){
 		Stack<Cell> total_path = new Stack<Cell>();
 		total_path.push(current);
@@ -77,17 +153,21 @@ class AStar extends Quagent{
 		return total_path;
 	}
 	
-	
-	
+	/**
+	 * Main method just creates the room and the quagent
+	 */
     public static void main(String[] args) throws Exception {
 	
-		//Build the room
+		// Build the room
 		room = new Graph();
 		
-		//Make quagent
+		// Make quagent
 		new AStar();
     }
-
+	
+	/**
+	 *
+	 */
     AStar() throws Exception {
 		super();
 		try {
@@ -110,14 +190,20 @@ class AStar extends Quagent{
 			System.exit(0);
 		}
     }
-
+	
+	/**
+	 * Simple event printing method
+	 */
     public void printEvents(Events events) {
 		System.out.println("List of Events:");
 		for (int ix = 0; ix < events.size(); ix++) {
 			System.out.println(events.eventAt(ix));
 		}
     }
-
+	
+	/**
+	 * Method to handle most of the work of the program
+	 */
     public void parseWalkEvents(Events events) {
 		for (int ix = 0; ix < events.size(); ix++) {
 			String e = events.eventAt(ix);
