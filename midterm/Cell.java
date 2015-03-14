@@ -1,6 +1,6 @@
 import java.awt.Point;
 
-class Cell extends(Point){
+class Cell extends Point{
 	public enum Contents{
 		EMPTY, WALL, TOFU
 	}
@@ -16,5 +16,7 @@ class Cell extends(Point){
 		this.contents = contents;
 	}
 	
-	
+	public Contents content(){
+		return contents;
+	}
 }
