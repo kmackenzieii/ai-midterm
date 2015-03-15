@@ -17,3 +17,5 @@
 	-Don't get stuck on corners
 	-Actually pick up tofu
 	-Make better decisions of where to travel to
+	-Test indiscretized pathfinding
+	-Modify bresenham's algorithm to the expanded version
