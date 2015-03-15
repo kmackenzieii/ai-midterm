@@ -26,6 +26,21 @@ class Cell extends Point {
 		this.contents = contents;
 	}
 	
+	public boolean isWall() {
+		returns contents == Contents.WALL;
+	}
+	
+	public boolean equals(Cell c) {
+		return x == c.x && y == c.y;
+	}
+	
+	/**
+	 * Return the contents of the cell
+	 */
+	public Contents content(){
+		return contents;
+	}
+
 	/**
 	 * Enumeration to describe the contents of a cell
 	 */
