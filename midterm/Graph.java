@@ -138,4 +138,11 @@ class Graph{
 	public ArrayList<Cell> getNeighbors(Cell v){
 		return edges.get(v);
 	}
+	
+	public Cell getCellAt(int x, int y) {
+		for (Cell c : vertices)
+			if (c.x == x && c.y == y)
+				return c;
+		return null;
+	}
 }
