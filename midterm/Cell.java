@@ -35,6 +35,13 @@ class Cell extends Point {
 	}
 	
 	/**
+	 * Return the contents of the cell
+	 */
+	public Contents content(){
+		return contents;
+	}
+
+	/**
 	 * Enumeration to describe the contents of a cell
 	 */
 	public enum Contents {

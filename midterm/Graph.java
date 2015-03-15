@@ -1,4 +1,5 @@
 import java.util.*;
+import java.lang.*;
 
 /**
  * Defines a graph of vertices and edges. Each vertex is a cell, and each edge
@@ -20,6 +21,11 @@ class Graph{
 	 * Hash map of cells, each bound to an array list of neighboring cells
 	 */
 	private HashMap<Cell, ArrayList<Cell>> edges;
+
+	/**
+	 * Array list of unexplored vertices
+	 */
+	private ArrayList<Cell> unexplored;
 	
 	/**
 	 * Number of edges
@@ -37,6 +43,7 @@ class Graph{
 	public Graph(int cell_size){
 		this.cell_size = cell_size;
 		this.vertices = new ArrayList<Cell>();
+		this.unexplored = new ArrayList<Cell>();
 		this.edges = new HashMap<Cell, ArrayList<Cell>>();
 		this.E = 0;
 		this.V = 0;
@@ -69,6 +76,9 @@ class Graph{
 	public void addVertex(Cell v){
 		if(!this.contains(v)){
 			vertices.add(v);
+			if(v.content() != Cell.Contents.WALL){
+				unexplored.add(v);
+			}
 			edges.put(v, new ArrayList<Cell>());
 			V++;
 			
@@ -93,30 +103,98 @@ class Graph{
 		int y1 = v.y / cell_size;
 		int x0 = w.x / cell_size;
 		int x1 = v.x / cell_size;
+		
+		
+		// If slope is outside the range [-1,1], swap x and y
+		boolean xy_swap = false;
+		if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
+			xy_swap = true;
+			int temp = x1;
+			x0 = y0;
+			y0 = temp;
+			temp = x1;
+			x1 = y1;
+			y1 = temp;
+		}
+		
+		// If line goes from right to left, swap the endpoints
+		if (x1 - x0 < 0) {
+			int temp = x0;
+			x0 = x1;
+			x1 = temp;
+			temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}
+		
+		
+		
+		
 		int deltax = x1 - x0;
 		int deltay = y1 - y0;
-		double error = 0;
-		double deltaerr = abs (deltay / deltax);
+		int d = 2*deltay - deltax;
 		int y = y0;
-		for int x = x0; x<x1; x++ {
-			addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
-			error = error + deltaerr;
-			while (error >= 0.5) {
-				addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
-				y = y + sign(y1 - y0);
-				error = error - 1.0;
+		for (int x = x0+1; x<x1; x++) {
+			if(d>0){
+				y = y+1;
+				if(xy_swap){
+					addVertex(new Cell(y*cell_size+cell_size/2, x*cell_size+cell_size/2));
+				}
+				else {
+					addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
+				}
+				d = d + (2*deltay-2*deltax);
+			}
+			else{
+				if(xy_swap){
+					addVertex(new Cell(y*cell_size+cell_size/2, x*cell_size+cell_size/2));
+				}
+				else {
+					addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
+				}
+				d = d + (2*deltay);
 			}
 		}
 	}
 	
+	/**
+	 * Marks a cell as being explored by removing it from the 
+	 * unexplored list
+	 */
+	public void markExplored(Cell v){
+		if(unexplored.contains(v)){
+			unexplored.remove(v);
+		}
+	}
+	
+	/**
+	 * Returns the unexplored cell farthest from cell v
+	 */
+	public Cell getFarthestUnexplored(Cell v){
+		double distance = 0;
+		Cell ret = null;
+		for(Cell w : unexplored){
+			if(v.distance(w) > distance){
+				distance = v.distance(w);
+				ret = w;
+			}
+		}
+		return ret;
+	}
+	
+
 	/**
 	 * Create an edge between the passed in cells (vertices)
 	 */
 	public void addEdge(Cell w, Cell v){
 		if(this.contains(w) && this.contains(v)){
 			E++;
-			edges.get(w).add(v);
-			edges.get(v).add(w);
+			if(!edges.get(w).contains(v)){
+				edges.get(w).add(v);
+			}
+			if(!edges.get(v).contains(w)){
+				edges.get(v).add(w);
+			}
 		}
 	}
 	
@@ -144,5 +222,17 @@ class Graph{
 			if (c.x == x && c.y == y)
 				return c;
 		return null;
+	}
+}
+	/**
+	 * Prints every vertex in the map as well as the neighbors for each.
+	 */
+	public void print(){
+		for(Cell vertex : vertices){
+			System.out.println(vertex);
+			for(Cell neighbor : edges.get(vertex)){
+				System.out.println("\t"+neighbor);
+			}
+		}
 	}
 }
