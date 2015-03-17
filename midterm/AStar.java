@@ -161,32 +161,70 @@ class AStar extends Quagent{
 	}
 	
 	private Stack bresenham(Cell c1, Cell c2) {
+		
 		Stack<Cell> line = new Stack<Cell>();
 		
-		int y0 = w.y / CELL_SIZE;
-		int y1 = v.y / CELL_SIZE;
-		int x0 = w.x / CELL_SIZE;
-		int x1 = v.x / CELL_SIZE;
+		int y0 = c1.y / CELL_SIZE;
+		int y1 = c2.y / CELL_SIZE;
+		int x0 = c1.x / CELL_SIZE;
+		int x1 = c2.x / CELL_SIZE;
+		
+		
+		// If slope is outside the range [-1,1], swap x and y
+		boolean xy_swap = false;
+		if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
+			xy_swap = true;
+			int temp = x1;
+			x0 = y0;
+			y0 = temp;
+			temp = x1;
+			x1 = y1;
+			y1 = temp;
+		}
+		
+		// If line goes from right to left, swap the endpoints
+		if (x1 - x0 < 0) {
+			int temp = x0;
+			x0 = x1;
+			x1 = temp;
+			temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}
+		
 		int deltax = x1 - x0;
 		int deltay = y1 - y0;
-		double error = 0;
-		double deltaerr = abs (deltay / deltax);
+		int d = 2*deltay - deltax;
 		int y = y0;
-		for int x = x0; x<x1; x++ {
-			Cell c = room.getCellAt(x*cell_size+cell_size/2,
-									y*cell_size+cell_size/2);
-			if (c != null)
-				line.push(c);
-			//addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
-			error = error + deltaerr;
-			while (error >= 0.5) {
-				c = room.getCellAt(x*cell_size+cell_size/2,
-								   y*cell_size+cell_size/2);
-				if (c != null)
-					line.push(c);
-				//addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
-				y = y + sign(y1 - y0);
-				error = error - 1.0;
+		for (int x = x0+1; x<x1; x++) {
+			if(d>0){
+				y = y+1;
+				if(xy_swap){
+					Cell c = room.getCellAt(y*cell_size+cell_size/2,
+											x*cell_size+cell_size/2);
+					if (c != null)
+						line.push(c);
+				} else {
+					Cell c = room.getCellAt(x*cell_size+cell_size/2,
+											y*cell_size+cell_size/2);
+					if (c != null)
+						line.push(c);
+				}
+				d = d + (2*deltay-2*deltax);
+			}
+			else{
+				if(xy_swap){
+					Cell c = room.getCellAt(y*cell_size+cell_size/2,
+											x*cell_size+cell_size/2);
+					if (c != null)
+						line.push(c);
+				} else {
+					Cell c = room.getCellAt(x*cell_size+cell_size/2,
+											y*cell_size+cell_size/2);
+					if (c != null)
+						line.push(c);
+				}
+				d = d + (2*deltay);
 			}
 		}
 		return line;
