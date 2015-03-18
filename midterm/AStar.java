@@ -194,7 +194,6 @@ class AStar extends Quagent{
         int dy = y2 - y1;
         
         // first point
-        POINT (y1, x1);
         Cell c = room.getCellAt(x1, y1);
         if (c != null)
             line.push(c);
@@ -302,10 +301,11 @@ class AStar extends Quagent{
         // the last point (y2,x2) has to be the same as the last point of the algorithm
     }
     
-    private boolean containsWall(Stack<cell> line) {
+    private boolean containsWall(Stack<Cell> line) {
         for (Cell c : line)
             if (c.isWall())
                 return true;
+        return false;
     }
     
     /**
