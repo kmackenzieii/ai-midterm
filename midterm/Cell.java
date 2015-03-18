@@ -27,7 +27,7 @@ class Cell extends Point {
     }
     
     public boolean isWall() {
-        returns (contents == Contents.WALL);
+        return (contents == Contents.WALL);
     }
     
     public boolean equals(Cell c) {
