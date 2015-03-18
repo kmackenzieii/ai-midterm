@@ -135,7 +135,7 @@ class AStar extends Quagent{
         return null;
     }
     
-    private Stack<Cell> undiscretize(Cell start, Cell goal) {
+    private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
         Stack<Cell> newPath = new Stack<Cell>();
         
@@ -143,10 +143,11 @@ class AStar extends Quagent{
         Cell next = current;
         Cell looking = path.pop();
         newPath.push(current);
+        Stack<Cell> b = bresenham(current, looking);
         
-        while (!current.equals(goal)) {
-            Stack<Cell> b = bresenham(current, looking);
+        while (!looking.equals(goal)) {
             while (!containsWall(b) && !looking.equals(goal)) {
+                b = bresenham(current, looking);
                 next = looking;
                 looking = path.pop();
             }
