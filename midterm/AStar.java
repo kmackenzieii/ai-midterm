@@ -62,7 +62,7 @@ class AStar extends Quagent{
     /**
      * Actual implementation of the A* algorithm
      */
-    private Stack a_star(Cell start, Cell goal){
+    private Stack<Cell> a_star(Cell start, Cell goal){
         // The set of nodes already evaluated.
         ArrayList<Cell> closedset = new ArrayList<Cell>();
         ArrayList<Cell> openset = new ArrayList<Cell>();
@@ -135,7 +135,7 @@ class AStar extends Quagent{
         return null;
     }
     
-    private Stack undiscretize(Cell start, Cell goal) {
+    private Stack<Cell> undiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
         Stack<Cell> newPath = new Stack<Cell>();
         
@@ -160,7 +160,7 @@ class AStar extends Quagent{
         return path;
     }
     
-    private Stack bresenham(Cell c1, Cell c2) {
+    private Stack<Cell> bresenham(Cell c1, Cell c2) {
         
         // Stack to hold the cells
         Stack<Cell> line = new Stack<Cell>();
@@ -194,7 +194,6 @@ class AStar extends Quagent{
         int dy = y2 - y1;
         
         // first point
-        POINT (y1, x1);
         Cell c = room.getCellAt(x1, y1);
         if (c != null)
             line.push(c);
@@ -300,19 +299,21 @@ class AStar extends Quagent{
         }
         // assert ((y == y2) && (x == x2));
         // the last point (y2,x2) has to be the same as the last point of the algorithm
+        return line;
     }
     
-    private boolean containsWall(Stack<cell> line) {
+    private boolean containsWall(Stack<Cell> line) {
         for (Cell c : line)
             if (c.isWall())
                 return true;
+        return false;
     }
     
     /**
      * Reconstructs the path from the current cell through the passed in map
      *	of parents
      */
-    private Stack reconstruct_path(HashMap<Cell, Cell> cameFrom, Cell current){
+    private Stack<Cell> reconstruct_path(HashMap<Cell, Cell> cameFrom, Cell current){
         Stack<Cell> total_path = new Stack<Cell>();
         total_path.push(current);
         while (cameFrom.containsKey(current)){
