@@ -224,6 +224,13 @@ class Graph{
         return null;
     }
     
+    public Cell getCellAtIndex(int x, int y) {
+        for (Cell c : vertices)
+            if (c.x == (x * cell_size) && c.y == (y * cell_size))
+                return c;
+        return null;
+    }
+    
     /**
      * Prints every vertex in the map as well as the neighbors for each.
      */
