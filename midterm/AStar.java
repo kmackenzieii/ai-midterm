@@ -137,27 +137,27 @@ class AStar extends Quagent{
     
     private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-        Stack<Cell> newPath = new Stack<Cell>();
+        Stack<Cell> indiscretized = new Stack<Cell>();
         
         Cell current = path.pop();
         Cell next = current;
         Cell looking = path.pop();
-        newPath.push(current);
-        Stack<Cell> b = bresenham(current, looking);
+        indiscretized.push(current);
         
         while (!looking.equals(goal)) {
+            Stack<Cell> b = bresenham(current, looking);
             while (!containsWall(b) && !looking.equals(goal)) {
-                b = bresenham(current, looking);
                 next = looking;
                 looking = path.pop();
+                b = bresenham(current, looking);
             }
             if (!looking.equals(goal))
-                newPath.push(next);
+                indiscretized.push(next);
             current = next;
         }
-        newPath.push(goal);
-        while (!newPath.isEmpty())
-            path.push(newPath.pop());
+        indiscretized.push(goal);
+        while (!indiscretized.isEmpty())
+            path.push(indiscretized.pop());
         return path;
     }
     
@@ -415,7 +415,7 @@ class AStar extends Quagent{
                                 double ray_y = Double.parseDouble(tokens[base+2]) + y;
                                 Cell newCell = new Cell(
                                                         (((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2),
-                                                        (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), contents)
+                                                        (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), contents);
                                 room.addVertex(newCell);
                                 room.addLine(location,newCell);
                                 
