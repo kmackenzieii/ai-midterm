@@ -10,12 +10,14 @@
 
 #BUGS
 	-The framework looks like it has a hard time dealing with lots of rays
+		We probably only need to use 8, max
 	--The quagent stops responding for an unclear reason. Seems to be associated with large rays requests
+		I'm pretty sure this happens because it quagents can miss events. If it has an empty queue, it will get stuck.
 
 #TODO
 	-Make smoother paths, i.e. stop less frequently
+		This should be fixed by indiscretization, needs to be tested
 	-Don't get stuck on corners
 	-Actually pick up tofu
 	-Make better decisions of where to travel to
 	-Test indiscretized pathfinding
-	-Modify bresenham's algorithm to the expanded version
