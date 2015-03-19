@@ -62,7 +62,7 @@ class AStar extends Quagent{
     /**
      * Actual implementation of the A* algorithm
      */
-    private Stack a_star(Cell start, Cell goal){
+    private Stack<Cell> a_star(Cell start, Cell goal){
         // The set of nodes already evaluated.
         ArrayList<Cell> closedset = new ArrayList<Cell>();
         ArrayList<Cell> openset = new ArrayList<Cell>();
@@ -135,32 +135,33 @@ class AStar extends Quagent{
         return null;
     }
     
-    private Stack undiscretize(Cell start, Cell goal) {
+    private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-        Stack<Cell> newPath = new Stack<Cell>();
+        Stack<Cell> indiscretized = new Stack<Cell>();
         
         Cell current = path.pop();
         Cell next = current;
         Cell looking = path.pop();
-        newPath.push(current);
+        indiscretized.push(current);
         
-        while (!current.equals(goal)) {
+        while (!looking.equals(goal)) {
             Stack<Cell> b = bresenham(current, looking);
             while (!containsWall(b) && !looking.equals(goal)) {
                 next = looking;
                 looking = path.pop();
+                b = bresenham(current, looking);
             }
             if (!looking.equals(goal))
-                newPath.push(next);
+                indiscretized.push(next);
             current = next;
         }
-        newPath.push(goal);
-        while (!newPath.isEmpty())
-            path.push(newPath.pop());
+        indiscretized.push(goal);
+        while (!indiscretized.isEmpty())
+            path.push(indiscretized.pop());
         return path;
     }
     
-    private Stack bresenham(Cell c1, Cell c2) {
+    private Stack<Cell> bresenham(Cell c1, Cell c2) {
         
         // Stack to hold the cells
         Stack<Cell> line = new Stack<Cell>();
@@ -194,8 +195,7 @@ class AStar extends Quagent{
         int dy = y2 - y1;
         
         // first point
-        POINT (y1, x1);
-        Cell c = room.getCellAt(x1, y1);
+        Cell c = room.getCellAtIndex(x1, y1);
         if (c != null)
             line.push(c);
         
@@ -237,27 +237,27 @@ class AStar extends Quagent{
                     
                     // Bottom
                     if (error + errorprev < ddx) {
-                        c = room.getCellAt(x, y-ystep);
+                        c = room.getCellAtIndex(x, y-ystep);
                         if (c != null)
                             line.push(c);
                     }
                     // Left
                     else if (error + errorprev > ddx) {
-                        c = room.getCellAt(x-xstep, y);
+                        c = room.getCellAtIndex(x-xstep, y);
                         if (c != null)
                             line.push(c);
                     }
                     // Both (crosses corner exactly)
                     else {
-                        c = room.getCellAt(x, y-ystep);
+                        c = room.getCellAtIndex(x, y-ystep);
                         if (c != null)
                             line.push(c);
-                        c = room.getCellAt(x-xstep, y);
+                        c = room.getCellAtIndex(x-xstep, y);
                         if (c != null)
                             line.push(c);
                     }
                 }
-                c = room.getCellAt(x, y);
+                c = room.getCellAtIndex(x, y);
                 if (c != null)
                     line.push(c);
                 errorprev = error;
@@ -274,25 +274,25 @@ class AStar extends Quagent{
                     x += xstep;
                     error -= ddy;
                     if (error + errorprev < ddy) {
-                        c = room.getCellAt(x-xstep, y);
+                        c = room.getCellAtIndex(x-xstep, y);
                         if (c != null)
                             line.push(c);
                     }
                     else if (error + errorprev > ddy) {
-                        c = room.getCellAt(x, y-ystep);
+                        c = room.getCellAtIndex(x, y-ystep);
                         if (c != null)
                             line.push(c);
                     }
                     else{
-                        c = room.getCellAt(x, y-ystep);
+                        c = room.getCellAtIndex(x, y-ystep);
                         if (c != null)
                             line.push(c);
-                        c = room.getCellAt(x-xstep, y);
+                        c = room.getCellAtIndex(x-xstep, y);
                         if (c != null)
                             line.push(c);
                     }
                 }
-                c = room.getCellAt(x, y);
+                c = room.getCellAtIndex(x, y);
                 if (c != null)
                     line.push(c);
                 errorprev = error;
@@ -300,19 +300,21 @@ class AStar extends Quagent{
         }
         // assert ((y == y2) && (x == x2));
         // the last point (y2,x2) has to be the same as the last point of the algorithm
+        return line;
     }
     
-    private boolean containsWall(Stack<cell> line) {
+    private boolean containsWall(Stack<Cell> line) {
         for (Cell c : line)
             if (c.isWall())
                 return true;
+        return false;
     }
     
     /**
      * Reconstructs the path from the current cell through the passed in map
      *	of parents
      */
-    private Stack reconstruct_path(HashMap<Cell, Cell> cameFrom, Cell current){
+    private Stack<Cell> reconstruct_path(HashMap<Cell, Cell> cameFrom, Cell current){
         Stack<Cell> total_path = new Stack<Cell>();
         total_path.push(current);
         while (cameFrom.containsKey(current)){
@@ -391,7 +393,9 @@ class AStar extends Quagent{
                             yaw = Double.parseDouble(tokens[8]);
                             velocity = Double.parseDouble(tokens[9]);
                             
-                            location = new Cell((((int)x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2));
+                            location = new Cell(
+                                                (((int)x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2),
+                                                (((int)y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2));
                             room.addVertex(location);
                             this.rays(15);
                         }
@@ -409,9 +413,11 @@ class AStar extends Quagent{
                                 }
                                 double ray_x = Double.parseDouble(tokens[base+1]) + x;
                                 double ray_y = Double.parseDouble(tokens[base+2]) + y;
-                                room.addVertex(new Cell((((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), contents));
-                                room.addLine(location,
-                                             new Cell((((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2)));
+                                Cell newCell = new Cell(
+                                                        (((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2),
+                                                        (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), contents);
+                                room.addVertex(newCell);
+                                room.addLine(location,newCell);
                                 
                             }
                             //room.print();
