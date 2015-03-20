@@ -429,7 +429,7 @@ class AStar extends Quagent{
                                 room.addLine(location,newCell);
                                 
                             }
-                            //room.print();
+                            room.print();
                             //Attempt to go as far away as possible
                             path = a_star(location, room.getFarthestUnexplored(location));
                             state = State.SEARCHING;
@@ -498,6 +498,7 @@ class AStar extends Quagent{
 													fitToGrid(ray_y)));
                                 
                             }
+                            room.printMap();
                             
                             
                             //If we don't have a path, find a new one

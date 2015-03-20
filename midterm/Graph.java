@@ -181,7 +181,7 @@ class Graph{
 			}
 		}
 		
-	}
+	} 
     
     /**
      * Marks a cell as being explored by removing it from the
@@ -266,6 +266,55 @@ class Graph{
             for(Cell neighbor : edges.get(vertex)){
                 System.out.println("\t"+neighbor);
             }
+        }
+    }
+    
+    /**
+     * Print the map of Ms and Os
+     */
+    public void printMap()
+    {
+        // Figure out the current bounds of the map
+        Cell leftmost = vertices.get(0);
+        Cell rightmost = vertices.get(0);
+        Cell topmost = vertices.get(0);
+        Cell bottommost = vertices.get(0);
+        
+        for (Cell v : vertices) {
+            if (v.x < leftmost.x)
+                leftmost = v;
+            if (v.x > rightmost.x)
+                rightmost = v;
+            if (v.y > topmost.y)
+                topmost = v;
+            if (v.y < bottommost.y)
+                bottommost = v;
+        }
+        
+        int leftBound = leftmost.x;
+        int rightBound = rightmost.x;
+        int upperBound = topmost.y;
+        int lowerBound = bottommost.y;
+        
+        // Do the printing (space for unseen, . for unexplored, + for explored,
+        //  # for walls
+        System.out.println("MAP: ");
+        Cell current;
+        for (int row = lowerBound; row <= upperBound; row += cell_size) {
+            for (int col = leftBound; col <= rightBound; col += cell_size) {
+                current = getCellAt(col, row);
+                if (current != null) {
+                    if (current.isWall())
+                        System.out.print("# ");
+                    else if (unexplored.contains(current))
+                        System.out.print(". ");
+                    else
+                        System.out.print("+ ");
+                } else {
+                    System.out.print("  ");
+                }
+            }
+            System.out.print("\n");
         }
     }
 }
