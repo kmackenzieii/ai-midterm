@@ -6,7 +6,6 @@ import java.lang.*;
  *	is a connection between two cels
  */
 class Graph{
-    
     /**
      * Width of each cell
      */
@@ -81,81 +80,108 @@ class Graph{
             }
             edges.put(v, new ArrayList<Cell>());
             V++;
-            
-            addEdge(v, new Cell(v.x-cell_size, v.y-cell_size));
-            addEdge(v, new Cell(v.x-cell_size, v.y));
-            addEdge(v, new Cell(v.x-cell_size, v.y+cell_size));
-            
-            addEdge(v, new Cell(v.x, v.y-cell_size));
-            addEdge(v, new Cell(v.x, v.y+cell_size));
-            
-            addEdge(v, new Cell(v.x+cell_size, v.y-cell_size));
-            addEdge(v, new Cell(v.x+cell_size, v.y));
-            addEdge(v, new Cell(v.x+cell_size, v.y+cell_size));
         }
+		addEdge(v, new Cell(v.x-cell_size, v.y-cell_size));
+		addEdge(v, new Cell(v.x-cell_size, v.y));
+		addEdge(v, new Cell(v.x-cell_size, v.y+cell_size));
+		
+		addEdge(v, new Cell(v.x, v.y-cell_size));
+		addEdge(v, new Cell(v.x, v.y+cell_size));
+		
+		addEdge(v, new Cell(v.x+cell_size, v.y-cell_size));
+		addEdge(v, new Cell(v.x+cell_size, v.y));
+		addEdge(v, new Cell(v.x+cell_size, v.y+cell_size));
     }
     
-    /**
-     * Adds a line according to Bresenham's algorithm
-     */
-    public void addLine(Cell w, Cell v){
-        int y0 = w.y / cell_size;
-        int y1 = v.y / cell_size;
-        int x0 = w.x / cell_size;
-        int x1 = v.x / cell_size;
-        
-        
-        // If slope is outside the range [-1,1], swap x and y
-        boolean xy_swap = false;
-        if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
-            xy_swap = true;
-            int temp = x1;
-            x0 = y0;
-            y0 = temp;
-            temp = x1;
-            x1 = y1;
-            y1 = temp;
-        }
-        
-        // If line goes from right to left, swap the endpoints
-        if (x1 - x0 < 0) {
-            int temp = x0;
-            x0 = x1;
-            x1 = temp;
-            temp = y0;
-            y0 = y1;
-            y1 = temp;
-        }
-        
-        
-        
-        
-        int deltax = x1 - x0;
-        int deltay = y1 - y0;
-        int d = 2*deltay - deltax;
-        int y = y0;
-        for (int x = x0+1; x<x1; x++) {
-            if(d>0){
-                y = y+1;
-                if(xy_swap){
-                    addVertex(new Cell(y*cell_size+cell_size/2, x*cell_size+cell_size/2));
-                }
-                else {
-                    addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
-                }
-                d = d + (2*deltay-2*deltax);
-            }
-            else{
-                if(xy_swap){
-                    addVertex(new Cell(y*cell_size+cell_size/2, x*cell_size+cell_size/2));
-                }
-                else {
-                    addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
-                }
-                d = d + (2*deltay);
-            }
-        }
-    }
+	/**
+	 * Snap the number to a valid point index based on CELL_SIZE
+	 * Take into account sign of the point.
+	 */
+	private int gridToPoint(int num){
+		return (num*cell_size+cell_size/2);
+	}
+	
+	/**
+	 * Snap the number to a valid grid index based on CELL_SIZE
+	 * Take into account sign of the point.
+	 */
+	private int pointToGrid(int num){
+		return ((num-cell_size/2)/cell_size);
+	}
+	/**
+	 * Adds a line according to Bresenham's algorithm
+	 */
+	public void addLine(Cell c1, Cell c2){
+		int y0 = pointToGrid(c1.y);
+		int y1 = pointToGrid(c2.y);
+		int x0 = pointToGrid(c1.x);
+		int x1 = pointToGrid(c2.x);
+		System.out.println("Start: "+x0+", "+y0);
+		System.out.println("End: "+x1+", "+y1);
+		// If slope is outside the range [-1,1], swap x and y
+		boolean xy_swap = false;
+		if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
+			xy_swap = true;
+			int temp = x0;
+			x0 = y0;
+			y0 = temp;
+			temp = x1;
+			x1 = y1;
+			y1 = temp;
+		}
+		
+		// If line goes from right to left, swap the endpoints
+		if (x0 - x1 > 0) {
+			int temp = x0;
+			x0 = x1;
+			x1 = temp;
+			temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}
+		
+		
+		int deltax = Math.abs(x1 - x0);
+		int deltay = Math.abs(y1 - y0);
+		int d = 2*deltay - deltax;
+		
+		if(xy_swap){
+			addVertex(new Cell(gridToPoint(y0), gridToPoint(x0)));
+			System.out.println(y0+", "+x0);
+		}
+		else {
+			addVertex(new Cell(gridToPoint(x0), gridToPoint(y0)));
+			System.out.println(x0+", "+y0);
+		}
+		
+		int y = y0;
+		for (int x = x0+1; x<x1+1; x++) {
+			if(d>0){
+				y = y+Integer.signum(y1-y0);
+				if(xy_swap){
+					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
+					System.out.println(y+", "+x);
+				}
+				else {
+					addVertex(new Cell(gridToPoint(x), gridToPoint(y)));
+					System.out.println(x+", "+y);
+				}
+				d = d + (2*deltay-2*deltax);
+			}
+			else{
+				if(xy_swap){
+					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
+					System.out.println(y+", "+x);
+				}
+				else {
+					addVertex(new Cell(gridToPoint(x), gridToPoint(y)));
+					System.out.println(x+", "+y);
+				}
+				d = d + (2*deltay);
+			}
+		}
+		
+	}
     
     /**
      * Marks a cell as being explored by removing it from the
@@ -226,7 +252,7 @@ class Graph{
     
     public Cell getCellAtIndex(int x, int y) {
         for (Cell c : vertices)
-            if (c.x == (x * cell_size) && c.y == (y * cell_size))
+            if (c.x == (gridToPoint(x)) && c.y == (gridToPoint(y)))
                 return c;
         return null;
     }

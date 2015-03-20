@@ -10,7 +10,7 @@ class AStar extends Quagent{
     /**
      * Size of each cell in the graph
      */
-    final static int CELL_SIZE = 64;
+    final static int CELL_SIZE = 32;
     
     /**
      * Graph to hold a map of the room
@@ -371,6 +371,14 @@ class AStar extends Quagent{
             System.out.println(events.eventAt(ix));
         }
     }
+	
+	/**
+	 * Snap the number to a valid grid index based on CELL_SIZE
+	 * Take into account sign of the point.
+	 */
+	private int fitToGrid(double num) {
+		return (((int)num/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2);
+	}
     
     /**
      * Method to handle most of the work of the program
@@ -394,8 +402,8 @@ class AStar extends Quagent{
                             velocity = Double.parseDouble(tokens[9]);
                             
                             location = new Cell(
-                                                (((int)x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2),
-                                                (((int)y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2));
+                                                fitToGrid(x),
+                                                fitToGrid(y));
                             room.addVertex(location);
                             this.rays(15);
                         }
@@ -414,13 +422,14 @@ class AStar extends Quagent{
                                 double ray_x = Double.parseDouble(tokens[base+1]) + x;
                                 double ray_y = Double.parseDouble(tokens[base+2]) + y;
                                 Cell newCell = new Cell(
-                                                        (((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2),
-                                                        (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), contents);
+													fitToGrid(ray_x),
+													fitToGrid(ray_y), contents);
+								System.out.println("Current: " + location + ", Ray: " + newCell);
                                 room.addVertex(newCell);
                                 room.addLine(location,newCell);
                                 
                             }
-                            //room.print();
+                            room.print();
                             //Attempt to go as far away as possible
                             path = a_star(location, room.getFarthestUnexplored(location));
                             state = State.SEARCHING;
@@ -458,7 +467,9 @@ class AStar extends Quagent{
                             yaw = Double.parseDouble(tokens[8]);
                             velocity = Double.parseDouble(tokens[9]);
                             
-                            location = new Cell((((int)x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2));
+                            location = new Cell(
+                                                fitToGrid(x),
+                                                fitToGrid(y));
                             room.markExplored(location);
                             this.rays(15);
                         }
@@ -478,9 +489,13 @@ class AStar extends Quagent{
                                 double ray_x = Double.parseDouble(tokens[base+1]) + x;
                                 double ray_y = Double.parseDouble(tokens[base+2]) + y;
                                 //Add the point where the ray hit
-                                room.addVertex(new Cell((((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), contents));
+                                room.addVertex(new Cell(
+													fitToGrid(ray_x),
+													fitToGrid(ray_y), contents));
                                 //...and everything in between
-                                room.addLine(location, new Cell((((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2)));
+                                room.addLine(location, new Cell(
+													fitToGrid(ray_x),
+													fitToGrid(ray_y)));
                                 
                             }
                             
