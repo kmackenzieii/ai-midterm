@@ -8,6 +8,7 @@
 	-Chooses farthest unexplored location as exploration goal
 	-Travels using A* algorithm
 
+
 #BUGS
 	-The framework looks like it has a hard time dealing with lots of rays
 		We probably only need to use 8, max
@@ -19,3 +20,5 @@
 	-Actually pick up tofu
 	-Make better decisions of where to travel to
 	-Test indiscretized pathfinding
+
+![screenshot](https://raw.githubusercontent.com/kmackenzieii/ai-midterm/master/Mapping.tiff)
