@@ -104,7 +104,6 @@ class Graph{
         int x0 = w.x / cell_size;
         int x1 = v.x / cell_size;
         
-        
         // If slope is outside the range [-1,1], swap x and y
         boolean xy_swap = false;
         if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
@@ -127,30 +126,36 @@ class Graph{
             y1 = temp;
         }
         
-        
-        
-        
         int deltax = x1 - x0;
         int deltay = y1 - y0;
         int d = 2*deltay - deltax;
         int y = y0;
+        int xcoord, ycoord;
         for (int x = x0+1; x<x1; x++) {
             if(d>0){
                 y = y+1;
                 if(xy_swap){
-                    addVertex(new Cell(y*cell_size+cell_size/2, x*cell_size+cell_size/2));
+                    xcoord = y*cell_size+cell_size/2;
+                    ycoord = x*cell_size+cell_size/2;
+                    addVertex(new Cell(xcoord, ycoord)));
                 }
                 else {
-                    addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
+                    xcoord = x*cell_size+cell_size/2;
+                    ycoord = y*cell_size+cell_size/2;
+                    addVertex(new Cell(xcoord, ycoord)));
                 }
                 d = d + (2*deltay-2*deltax);
             }
             else{
                 if(xy_swap){
-                    addVertex(new Cell(y*cell_size+cell_size/2, x*cell_size+cell_size/2));
+                    xcoord = y*cell_size+cell_size/2;
+                    ycoord = x*cell_size+cell_size/2;
+                    addVertex(new Cell(xcoord, ycoord)));
                 }
                 else {
-                    addVertex(new Cell(x*cell_size+cell_size/2, y*cell_size+cell_size/2));
+                    xcoord = x*cell_size+cell_size/2;
+                    ycoord = y*cell_size+cell_size/2;
+                    addVertex(new Cell(xcoord, ycoord)));
                 }
                 d = d + (2*deltay);
             }
