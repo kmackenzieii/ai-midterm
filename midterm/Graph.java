@@ -116,8 +116,8 @@ class Graph{
 		int y1 = pointToGrid(c2.y);
 		int x0 = pointToGrid(c1.x);
 		int x1 = pointToGrid(c2.x);
-		System.out.println("Start: "+x0+", "+y0);
-		System.out.println("End: "+x1+", "+y1);
+		//System.out.println("Start: "+x0+", "+y0);
+		//System.out.println("End: "+x1+", "+y1);
 		// If slope is outside the range [-1,1], swap x and y
 		boolean xy_swap = false;
 		if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
@@ -147,11 +147,11 @@ class Graph{
 		
 		if(xy_swap){
 			addVertex(new Cell(gridToPoint(y0), gridToPoint(x0)));
-			System.out.println(y0+", "+x0);
+			//System.out.println(y0+", "+x0);
 		}
 		else {
 			addVertex(new Cell(gridToPoint(x0), gridToPoint(y0)));
-			System.out.println(x0+", "+y0);
+			//System.out.println(x0+", "+y0);
 		}
 		
 		int y = y0;
@@ -160,22 +160,22 @@ class Graph{
 				y = y+Integer.signum(y1-y0);
 				if(xy_swap){
 					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
-					System.out.println(y+", "+x);
+					//System.out.println(y+", "+x);
 				}
 				else {
 					addVertex(new Cell(gridToPoint(x), gridToPoint(y)));
-					System.out.println(x+", "+y);
+					//System.out.println(x+", "+y);
 				}
 				d = d + (2*deltay-2*deltax);
 			}
 			else{
 				if(xy_swap){
 					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
-					System.out.println(y+", "+x);
+					//System.out.println(y+", "+x);
 				}
 				else {
 					addVertex(new Cell(gridToPoint(x), gridToPoint(y)));
-					System.out.println(x+", "+y);
+					//System.out.println(x+", "+y);
 				}
 				d = d + (2*deltay);
 			}

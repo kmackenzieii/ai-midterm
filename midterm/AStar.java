@@ -386,7 +386,7 @@ class AStar extends Quagent{
     public void parseWalkEvents(Events events) {
         for (int ix = 0; ix < events.size(); ix++) {
             String e = events.eventAt(ix);
-            printEvents(events);
+            //printEvents(events);
             try{
                 switch (this.state) {
                     case START:
@@ -424,19 +424,19 @@ class AStar extends Quagent{
                                 Cell newCell = new Cell(
 													fitToGrid(ray_x),
 													fitToGrid(ray_y), contents);
-								System.out.println("Current: " + location + ", Ray: " + newCell);
+								//System.out.println("Current: " + location + ", Ray: " + newCell);
                                 room.addVertex(newCell);
                                 room.addLine(location,newCell);
                                 
                             }
-                            room.print();
+                            //room.print();
                             //Attempt to go as far away as possible
                             path = a_star(location, room.getFarthestUnexplored(location));
                             state = State.SEARCHING;
                             
                             //If we don't have a path, find a new one
                             if(path == null){
-                                System.out.println("Destination: " + room.getFarthestUnexplored(location));
+                                //System.out.println("Destination: " + room.getFarthestUnexplored(location));
                                 path = a_star(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
