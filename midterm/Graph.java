@@ -243,9 +243,12 @@ class Graph{
         }
     }
     
-    //print the map of Ms and Os
+    /**
+     * Print the map of Ms and Os
+     */
     public void printMap()
     {
+        // Figure out the current bounds of the map
         Cell leftmost = vertices.get(0);
         Cell rightmost = vertices.get(0);
         Cell topmost = vertices.get(0);
@@ -267,12 +270,12 @@ class Graph{
         int upperBound = topmost.y;
         int lowerBound = bottommost.y;
         
-        Cell current;
-        
+        // Do the printing (space for unseen, . for unexplored, + for explored,
+        //  # for walls
         System.out.println("MAP: ");
-        
-        for (int row = lowerBound; row < upperBound; row += cell_size) {
-            for (int col = leftBound; col < rightBound; col += cell_size) {
+        Cell current;
+        for (int row = lowerBound; row <= upperBound; row += cell_size) {
+            for (int col = leftBound; col <= rightBound; col += cell_size) {
                 current = getCellAt(col, row);
                 if (current != null) {
                     if (current.isWall())
