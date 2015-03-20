@@ -483,6 +483,7 @@ class AStar extends Quagent{
                                 room.addLine(location, new Cell((((int)ray_x/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2), (((int)ray_y/CELL_SIZE)*CELL_SIZE+CELL_SIZE/2)));
                                 
                             }
+                            room.printMap();
                             
                             
                             //If we don't have a path, find a new one

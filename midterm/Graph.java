@@ -246,10 +246,6 @@ class Graph{
     //print the map of Ms and Os
     public void printMap()
     {
-        int row = 0;
-        int col = 0;
-        System.out.println("\n\n\n\n\n");
-        boolean yes = false;
         //for(Cell vertex : vertices)
         //{
         //if vertex = the first vertex in the list, i.e. my Loc, then store it
@@ -261,16 +257,59 @@ class Graph{
         //System.out.println(vertex.x);
         //}
         
-        /*search through u list (row) 32 at a time
-         //then k list (col) 32 at a time
-         //if both row and col match the x and y in a cell, then print M instead of O */
+        Cell leftmost = vertices.get(0);
+        Cell rightmost = vertices.get(0);
+        Cell topmost = vertices.get(0);
+        Cell bottommost = vertices.get(0);
+        
+        for (Cell v : vertices) {
+            if (v.x < leftmost.x)
+                leftmost = v;
+            if (v.x > rightmost.x)
+                rightmost = v;
+            if (v.y > topmost.y)
+                topmost = v;
+            if (v.y < bottommost.y)
+                bottommost = v;
+        }
+        
+        int leftBound = leftmost.x;
+        int rightBound = rightmost.x;
+        int upperBound = topmost.y;
+        int lowerBound = bottommost.y;
+        
+        Cell current;
+        
+        System.out.println("MAP: ");
+        
+        for (int row = lowerBound; row < upperBound; row += cell_size) {
+            for (int col = leftBound; col < rightBound; col += cell_size) {
+                current = getCellAt(col, row);
+                if (current != null) {
+                    if (current.isWall())
+                        System.out.print("# ");
+                    else if (unexplored.contains(current))
+                        System.out.print(". ");
+                    else
+                        System.out.print("+ ");
+                } else {
+                    System.out.print("  ");
+                }
+            }
+            System.out.print("\n");
+        }
+        
+        //search through u list (row) 32 at a time
+        //then k list (col) 32 at a time
+        //if both row and col match the x and y in a cell, then print M instead of O
+        /*
         while(row<=512) // u or y`
         {
             while(col<=512) // k or x
             {
-                /*Loops through the values 0-512 by incrementing 32 units at a time.
+                Loops through the values 0-512 by incrementing 32 units at a time.
                  In this way, it compares all values of x per 1 value of y, and checks each
-                 vertex in 'vertices' for each comparison*/
+                 vertex in 'vertices' for each comparison
                 for(Cell vertex : vertices)
                 {
                     if(vertex.y == row && vertex.x==col)
@@ -290,5 +329,6 @@ class Graph{
             System.out.println("\n"); // mapped
             col=0;
         }
+        */
     }
 }
