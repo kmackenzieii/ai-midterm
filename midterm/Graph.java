@@ -242,4 +242,53 @@ class Graph{
             }
         }
     }
+    
+    //print the map of Ms and Os
+    public void printMap()
+    {
+        int row = 0;
+        int col = 0;
+        System.out.println("\n\n\n\n\n");
+        boolean yes = false;
+        //for(Cell vertex : vertices)
+        //{
+        //if vertex = the first vertex in the list, i.e. my Loc, then store it
+        //    if(vertex==vertices.get(0))
+        //{
+        //    myX=vertex.x;
+        //    myY=vertex.y;
+        //}
+        //System.out.println(vertex.x);
+        //}
+        
+        /*search through u list (row) 32 at a time
+         //then k list (col) 32 at a time
+         //if both row and col match the x and y in a cell, then print M instead of O */
+        while(row<=512) // u or y`
+        {
+            while(col<=512) // k or x
+            {
+                /*Loops through the values 0-512 by incrementing 32 units at a time.
+                 In this way, it compares all values of x per 1 value of y, and checks each
+                 vertex in 'vertices' for each comparison*/
+                for(Cell vertex : vertices)
+                {
+                    if(vertex.y == row && vertex.x==col)
+                        yes=true;
+                }
+                
+                if(yes)
+                {
+                    System.out.print("M "); // mapped
+                    yes=false; //reset yes so it can be mused again
+                }
+                else
+                    System.out.print("O "); // Unmapped
+                col+=32;
+            }
+            row+=32;
+            System.out.println("\n"); // mapped
+            col=0;
+        }
+    }
 }
