@@ -47,6 +47,11 @@ class AStar extends Quagent{
      */
     private Cell location;
     
+	/**
+     * Current location of the quagent
+     */
+    private Cell target;
+	
     /**
      * Events
      */
@@ -424,14 +429,14 @@ class AStar extends Quagent{
 								int random = rand.nextInt(270)+90;
 								this.turn(random);
 							}
-							path = null;
+							path = a_star(location, target);
 							this.state = State.SEARCHING;
                             this.where();
                         }
                         
                         //Now we are facing the target so we can walk there
                         if (e.indexOf("turnby") >= 0) {
-                            this.walk(CELL_SIZE);
+                            this.walk(4*CELL_SIZE);
                         }
 						break;
                     case START:
@@ -450,7 +455,12 @@ class AStar extends Quagent{
                             location = new Cell(
                                                 fitToGrid(x),
                                                 fitToGrid(y));
-							room.markExplored(location);
+							int i, j;
+							for(j=fitToGrid(y-200);j<fitToGrid(y+200);j=j+CELL_SIZE){
+								for(i=fitToGrid(x-200);i<fitToGrid(x+200);i=i+CELL_SIZE){
+									room.markExplored(new Cell(i, j));
+								}
+							}
                             room.addVertex(location);
                             this.rays(16);
                         }
@@ -478,13 +488,14 @@ class AStar extends Quagent{
                             }
                             //room.print();
                             //Attempt to go as far away as possible
-                            path = a_star(location, room.getFarthestUnexplored(location));
+							target = room.getFarthestUnexplored(location);
+                            path = a_star(location, target);
                             state = State.SEARCHING;
                             
                             //If we don't have a path, find a new one
                             if(path == null){
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = a_star(location, room.getFarthestUnexplored(location));
+                                path = a_star(location, target);
 								//path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
@@ -520,8 +531,12 @@ class AStar extends Quagent{
                             location = new Cell(
                                                 fitToGrid(x),
                                                 fitToGrid(y));
-							room.markExplored(location);
-							room.markExplored(last_location);
+							int i, j;
+							for(j=fitToGrid(y-200);j<fitToGrid(y+200);j=j+CELL_SIZE){
+								for(i=fitToGrid(x-200);i<fitToGrid(x+200);i=i+CELL_SIZE){
+									room.markExplored(new Cell(i, j));
+								}
+							}
 							
 							room.printUnexplored();
 							this.radius(10000);
@@ -553,10 +568,13 @@ class AStar extends Quagent{
                                 
                             }
                             room.printMap();
+							
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
+								target = room.getFarthestUnexplored(location);
+								followingTofu = false;
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = a_star(location, room.getFarthestUnexplored(location));
+                                path = a_star(location, target);
 								//path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
@@ -633,8 +651,8 @@ class AStar extends Quagent{
 								if (dist > 60)
 								{
 									if(!followingTofu){
-										path = a_star(location, new Cell(fitToGrid(tofu_x),
-											 fitToGrid(tofu_y)));
+										target = new Cell(fitToGrid(tofu_x), fitToGrid(tofu_y));
+										path = a_star(location, target);
 										followingTofu = true;
 									}
 								}

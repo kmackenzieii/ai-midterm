@@ -237,15 +237,7 @@ class Graph{
      * unexplored list
      */
     public void markExplored(Cell v){
-		int index = -1;
-        for(int i = 0; i<unexplored.size(); i++){
-			if(v.equals(unexplored.get(i))){
-				index = i;
-				break;
-			}
-        }
-		if(index != -1)
-			unexplored.remove(index);
+		unexplored.remove(v);
     }
     
     /**
