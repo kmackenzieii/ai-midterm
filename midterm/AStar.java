@@ -644,6 +644,7 @@ class AStar extends Quagent{
 								}
 								this.rays(16);
 							}
+                            room.markExplored(location,200);
 						}
                         
                         break;
