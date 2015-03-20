@@ -137,12 +137,12 @@ class Graph{
                 if(xy_swap){
                     xcoord = y*cell_size+cell_size/2;
                     ycoord = x*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord)));
+                    addVertex(new Cell(xcoord, ycoord));
                 }
                 else {
                     xcoord = x*cell_size+cell_size/2;
                     ycoord = y*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord)));
+                    addVertex(new Cell(xcoord, ycoord));
                 }
                 d = d + (2*deltay-2*deltax);
             }
@@ -150,12 +150,12 @@ class Graph{
                 if(xy_swap){
                     xcoord = y*cell_size+cell_size/2;
                     ycoord = x*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord)));
+                    addVertex(new Cell(xcoord, ycoord));
                 }
                 else {
                     xcoord = x*cell_size+cell_size/2;
                     ycoord = y*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord)));
+                    addVertex(new Cell(xcoord, ycoord));
                 }
                 d = d + (2*deltay);
             }
