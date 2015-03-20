@@ -10,7 +10,7 @@ class AStar extends Quagent{
     /**
      * Size of each cell in the graph
      */
-    final static int CELL_SIZE = 32;
+    final static int CELL_SIZE = 16;
     
     /**
      * Graph to hold a map of the room
@@ -32,6 +32,16 @@ class AStar extends Quagent{
      */
     private Stack<Cell> path;
     
+	/**
+	 * True if the target is tofu
+	 */
+	private boolean followingTofu = false;
+	
+	/**
+     * Previous location of the quagent
+     */
+    private Cell last_location;
+	
     /**
      * Current location of the quagent
      */
@@ -42,6 +52,11 @@ class AStar extends Quagent{
      */
     private Events events;
     
+	/**
+	 * For generating random numbers
+	 */
+	Random rand = new Random();
+	
     /**
      * Reference frame of the quagent
      */
@@ -51,7 +66,7 @@ class AStar extends Quagent{
      * Enumeration to describe the state of the agent
      */
     private enum State{
-        START, SEARCHING
+        START, SEARCHING, UNSTICKING
     }
     
     /**
@@ -67,6 +82,12 @@ class AStar extends Quagent{
         ArrayList<Cell> closedset = new ArrayList<Cell>();
         ArrayList<Cell> openset = new ArrayList<Cell>();
         
+		if(start.equals(goal)){
+			Stack<Cell> output = new Stack<Cell>();
+			output.push(start);
+			return output;
+		}
+		
         // The set of tentative nodes to be evaluated,
         //	initially containing the start node
         openset.add(start);
@@ -115,8 +136,10 @@ class AStar extends Quagent{
                     continue;
                 
                 // Calculate the g score
-                Integer tentative_g_score = new Integer(g_score.get(current) + (int)current.distance(neighbor));
-                
+				int wall_modifier = room.neighborIsWall(neighbor) ? 500 : 0;
+				wall_modifier = wall_modifier + (neighbor.isWall() ? 10000 : 0);
+				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
+                Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
                 // If going through the current node is better than going
                 //	through the neighbor's current parent, change its parent
                 if (!openset.contains(neighbor) || tentative_g_score < g_score.get(neighbor)){
@@ -167,10 +190,10 @@ class AStar extends Quagent{
         Stack<Cell> line = new Stack<Cell>();
         
         // Get endpoint coordinates
-        int y1 = c1.y / CELL_SIZE;
-        int y2 = c2.y / CELL_SIZE;
-        int x1 = c1.x / CELL_SIZE;
-        int x2 = c2.x / CELL_SIZE;
+        int y1 = fitToGrid(c1.y);
+        int y2 = fitToGrid(c2.y);
+        int x1 = fitToGrid(c1.x);
+        int x2 = fitToGrid(c2.x);
         
         // loop counter
         int i;
@@ -384,11 +407,33 @@ class AStar extends Quagent{
      * Method to handle most of the work of the program
      */
     public void parseWalkEvents(Events events) {
+		//System.out.println(this.state);
         for (int ix = 0; ix < events.size(); ix++) {
             String e = events.eventAt(ix);
             //printEvents(events);
             try{
                 switch (this.state) {
+					case UNSTICKING:
+						if (e.indexOf("STOPPED") >= 0) {
+							String[] tokens = e.split("[()\\s]+");
+							double dist = Double.parseDouble(tokens[2]);
+							System.out.println(dist);
+							/*Guagent is stuck so unstick*/
+							if (dist < 1.0){
+								this.state = State.UNSTICKING;
+								int random = rand.nextInt(270)+90;
+								this.turn(random);
+							}
+							path = null;
+							this.state = State.SEARCHING;
+                            this.where();
+                        }
+                        
+                        //Now we are facing the target so we can walk there
+                        if (e.indexOf("turnby") >= 0) {
+                            this.walk(CELL_SIZE);
+                        }
+						break;
                     case START:
                         if (e.indexOf("getwhere") >= 0) {
                             String[] tokens = e.split("[()\\s]+");
@@ -401,11 +446,13 @@ class AStar extends Quagent{
                             yaw = Double.parseDouble(tokens[8]);
                             velocity = Double.parseDouble(tokens[9]);
                             
+							last_location = location;
                             location = new Cell(
                                                 fitToGrid(x),
                                                 fitToGrid(y));
+							room.markExplored(location);
                             room.addVertex(location);
-                            this.rays(15);
+                            this.rays(16);
                         }
                         
                         if (e.indexOf("rays") >= 0) {
@@ -429,7 +476,7 @@ class AStar extends Quagent{
                                 room.addLine(location,newCell);
                                 
                             }
-                            room.print();
+                            //room.print();
                             //Attempt to go as far away as possible
                             path = a_star(location, room.getFarthestUnexplored(location));
                             state = State.SEARCHING;
@@ -438,6 +485,7 @@ class AStar extends Quagent{
                             if(path == null){
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
                                 path = a_star(location, room.getFarthestUnexplored(location));
+								//path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null){
@@ -467,19 +515,25 @@ class AStar extends Quagent{
                             yaw = Double.parseDouble(tokens[8]);
                             velocity = Double.parseDouble(tokens[9]);
                             
+							last_location = location;
+							
                             location = new Cell(
                                                 fitToGrid(x),
                                                 fitToGrid(y));
-                            room.markExplored(location);
-                            this.rays(15);
+							room.markExplored(location);
+							room.markExplored(last_location);
+							
+							room.printUnexplored();
+							this.radius(10000);
                         }
+                        
                         
                         if (e.indexOf("rays") >= 0) {
                             String[] tokens = e.split("[()\\s]+");
                             for (int i = 0; i<((tokens.length - 4)/5); i++){
                                 int base = 5+5*i;
                                 Cell.Contents contents = Cell.Contents.EMPTY;
-                                if(tokens[base].equals("world_spawn")){
+                                if(tokens[base].equals("worldspawn")){
                                     contents = Cell.Contents.WALL;
                                 }
                                 else if(tokens[base].equals("TOFU")){
@@ -499,12 +553,11 @@ class AStar extends Quagent{
                                 
                             }
                             room.printMap();
-                            
-                            
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
                                 path = a_star(location, room.getFarthestUnexplored(location));
+								//path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null || path.isEmpty()){
@@ -521,7 +574,21 @@ class AStar extends Quagent{
                             }
                         }
                         
+						
+                        
+						
                         if (e.indexOf("STOPPED") >= 0) {
+							String[] tokens = e.split("[()\\s]+");
+							double dist = Double.parseDouble(tokens[2]);
+							//System.out.println(dist);
+							/*Guagent is stuck so unstick*/
+							if (dist < 1.0){
+								room.removeEdge(location, next);
+								this.state = State.UNSTICKING;
+								int random = rand.nextInt(270)+90;
+								path=null;
+								this.turn(random);
+							}
                             this.where();
                         }
                         
@@ -532,8 +599,56 @@ class AStar extends Quagent{
                             double dist = Math.sqrt(x2*x2 + y2*y2);
                             this.walk((int)dist);
                         }
+						
+						
+						if(e.indexOf("ask radius") >= 0){
+							double tofu_x=0;
+							double tofu_y=0;
+							double dist = Double.MAX_VALUE;
+							double angle = 0;
+							boolean tofuFound = false;
+							String[] tokens = e.split("[()\\s]+");
+							int numItems = Integer.parseInt(tokens[4]);
+							//this.radius(10000);
+							for (int i = 0; i<numItems; i++){
+								if (tokens[5+i*4].equals("tofu")){
+									tofuFound = true;
+									double temp_tofu_x = Double.parseDouble(tokens[5+i*4+1]);
+									double temp_tofu_y = Double.parseDouble(tokens[5+i*4+2]);
+									double temp_dist = Math.sqrt(temp_tofu_x*temp_tofu_x + temp_tofu_y*temp_tofu_y);
+									if(temp_dist<dist){
+										dist = temp_dist;
+										tofu_x = temp_tofu_x + x;
+										tofu_y = temp_tofu_y + y;
+										angle = Math.toDegrees(Math.atan2(tofu_x, tofu_y)) - this.pitch;
+									}
+									//System.out.println("ANGLE: " + angle + " DIST: " + dist);
+								}
+							}
+							if(!tofuFound){
+								this.rays(16);
+							}
+							else{
+								System.out.println("Tofu: "+fitToGrid(tofu_x)+", "+fitToGrid(tofu_y)+" "+followingTofu);
+								if (dist > 60)
+								{
+									if(!followingTofu){
+										path = a_star(location, new Cell(fitToGrid(tofu_x),
+											 fitToGrid(tofu_y)));
+										followingTofu = true;
+									}
+								}
+								else{
+									this.pickup("tofu");
+									followingTofu = false;
+								}
+								this.rays(16);
+							}
+						}
                         
                         break;
+						
+					
                 }
             }
             catch (QDiedException er) { // the quagent died -- catch that exception

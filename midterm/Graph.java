@@ -69,30 +69,59 @@ class Graph{
         return vertices.contains(v);
     }
     
+	public boolean neighborIsWall(Cell v){
+		for(Cell neighbor : getNeighbors(v)){
+			if(neighbor.isWall()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
     /**
      * Add the passed in cell to the graph.
      */
     public void addVertex(Cell v){
         if(!this.contains(v)){
             vertices.add(v);
-            if(v.content() != Cell.Contents.WALL){
+            if(!v.isWall()){
                 unexplored.add(v);
             }
             edges.put(v, new ArrayList<Cell>());
             V++;
         }
-		addEdge(v, new Cell(v.x-cell_size, v.y-cell_size));
-		addEdge(v, new Cell(v.x-cell_size, v.y));
-		addEdge(v, new Cell(v.x-cell_size, v.y+cell_size));
+				addEdge(v, new Cell(v.x-cell_size, v.y));
+			//addEdge(v, new Cell(v.x-cell_size, v.y-cell_size));
+			//addEdge(v, new Cell(v.x-cell_size, v.y+cell_size));
 		
-		addEdge(v, new Cell(v.x, v.y-cell_size));
-		addEdge(v, new Cell(v.x, v.y+cell_size));
+				addEdge(v, new Cell(v.x, v.y-cell_size));
+				
+				addEdge(v, new Cell(v.x, v.y+cell_size));
+			
+				addEdge(v, new Cell(v.x+cell_size, v.y));
+			//addEdge(v, new Cell(v.x+cell_size, v.y-cell_size));
+			//addEdge(v, new Cell(v.x+cell_size, v.y+cell_size));
 		
-		addEdge(v, new Cell(v.x+cell_size, v.y-cell_size));
-		addEdge(v, new Cell(v.x+cell_size, v.y));
-		addEdge(v, new Cell(v.x+cell_size, v.y+cell_size));
+		if(v.isWall()){
+			vertices.get(vertices.indexOf(v)).setContents(Cell.Contents.WALL);
+		}
+		//disconnectWalls();
     }
     
+	private void disconnectWalls(){
+		for(Cell v : vertices){
+			if(v.isWall()){
+				removeEdge(v, new Cell(v.x-cell_size, v.y));
+			
+				removeEdge(v, new Cell(v.x, v.y-cell_size));
+					
+				removeEdge(v, new Cell(v.x, v.y+cell_size));
+				
+				removeEdge(v, new Cell(v.x+cell_size, v.y));
+			}
+		}
+	}
+	
 	/**
 	 * Snap the number to a valid point index based on CELL_SIZE
 	 * Take into account sign of the point.
@@ -116,8 +145,6 @@ class Graph{
 		int y1 = pointToGrid(c2.y);
 		int x0 = pointToGrid(c1.x);
 		int x1 = pointToGrid(c2.x);
-		//System.out.println("Start: "+x0+", "+y0);
-		//System.out.println("End: "+x1+", "+y1);
 		// If slope is outside the range [-1,1], swap x and y
 		boolean xy_swap = false;
 		if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
@@ -158,6 +185,28 @@ class Graph{
 		for (int x = x0+1; x<x1+1; x++) {
 			if(d>0){
 				y = y+Integer.signum(y1-y0);
+				
+				if(d==1){
+					if(xy_swap){
+						addVertex(new Cell(gridToPoint(y-1), gridToPoint(x)));
+						//System.out.println(y+", "+x);
+					}
+					else {
+						addVertex(new Cell(gridToPoint(x), gridToPoint(y-1)));
+						//System.out.println(x+", "+y);
+					}
+				}
+				else{
+					if(xy_swap){
+						addVertex(new Cell(gridToPoint(y), gridToPoint(x-1)));
+						//System.out.println(y+", "+x);
+					}
+					else {
+						addVertex(new Cell(gridToPoint(x-1), gridToPoint(y)));
+						//System.out.println(x+", "+y);
+					}
+				}
+				
 				if(xy_swap){
 					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
 					//System.out.println(y+", "+x);
@@ -188,9 +237,15 @@ class Graph{
      * unexplored list
      */
     public void markExplored(Cell v){
-        if(unexplored.contains(v)){
-            unexplored.remove(v);
+		int index = -1;
+        for(int i = 0; i<unexplored.size(); i++){
+			if(v.equals(unexplored.get(i))){
+				index = i;
+				break;
+			}
         }
+		if(index != -1)
+			unexplored.remove(index);
     }
     
     /**
@@ -208,6 +263,35 @@ class Graph{
         return ret;
     }
     
+	/**
+     * Returns the unexplored cell nearest to cell v
+     */
+    public Cell getNearestUnexplored(Cell v){
+        double distance = Double.MAX_VALUE;
+        Cell ret = null;
+        for(Cell w : unexplored){
+			//System.out.println(w+" Distance: "+v.distance(w));
+            if(v.distance(w) <= distance){
+                distance = v.distance(w);
+                ret = w;
+            }
+        }
+        return ret;
+    }
+	
+	/**
+     * Returns true if the cell has not been explored
+     */
+    public boolean isUnexplored(Cell v){
+        boolean isUnexplored = false;
+        for(Cell w : unexplored){
+            if(v.equals(w)){
+                isUnexplored=true;
+            }
+        }
+        return isUnexplored;
+    }
+	
     
     /**
      * Create an edge between the passed in cells (vertices)
@@ -228,8 +312,7 @@ class Graph{
      * Remove the edge between the passed in cells (vertices)
      */
     public void removeEdge(Cell w, Cell v){
-        if(this.contains(w) && this.contains(v)
-           && edges.get(w).contains(v)) {
+        if(this.contains(w) && this.contains(v)) {
             E--;
             edges.get(w).remove(v);
             edges.get(v).remove(w);
@@ -257,6 +340,10 @@ class Graph{
         return null;
     }
     
+	public void printUnexplored(){
+		System.out.println("# Unexplored: "+unexplored.size());
+	}
+	
     /**
      * Prints every vertex in the map as well as the neighbors for each.
      */
@@ -305,13 +392,13 @@ class Graph{
                 current = getCellAt(col, row);
                 if (current != null) {
                     if (current.isWall())
-                        System.out.print("# ");
+                        System.out.print("#");
                     else if (unexplored.contains(current))
-                        System.out.print(". ");
+                        System.out.print(".");
                     else
-                        System.out.print("+ ");
+                        System.out.print("+");
                 } else {
-                    System.out.print("  ");
+                    System.out.print(" ");
                 }
             }
             System.out.print("\n");
