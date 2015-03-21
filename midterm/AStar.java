@@ -568,7 +568,7 @@ class AStar extends Quagent{
                                 
                             }
                             room.printMap();
-							
+
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
 								target = room.getFarthestUnexplored(location);
@@ -662,6 +662,7 @@ class AStar extends Quagent{
 								}
 								this.rays(16);
 							}
+                            room.markExplored(location,200);
 						}
                         
                         break;

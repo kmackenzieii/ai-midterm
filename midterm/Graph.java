@@ -240,6 +240,17 @@ class Graph{
 		unexplored.remove(v);
     }
     
+    public void markExplored(Cell v, int radius) {
+        ArrayList<Cell> toMark = new ArrayList<Cell>();
+        for (Cell u : unexplored) {
+            if (v.distance(u) < radius)
+                toMark.add(u);
+        }
+        for (Cell m : toMark) {
+            markExplored(m);
+        }
+    }
+    
     /**
      * Returns the unexplored cell farthest from cell v
      */
