@@ -266,15 +266,16 @@ class Graph{
         return ret;
     }
     
-	/**
+    /**
      * Returns the unexplored cell nearest to cell v
      */
     public Cell getNearestUnexplored(Cell v){
         double distance = Double.MAX_VALUE;
         Cell ret = null;
         for(Cell w : unexplored){
-			//System.out.println(w+" Distance: "+v.distance(w));
-            if(v.distance(w) <= distance){
+            // Anything within 200 clicks will have been explored
+            //  by the time we reach it
+            if(v.distance(w) <= distance && v.distance(w) >= 200){
                 distance = v.distance(w);
                 ret = w;
             }
