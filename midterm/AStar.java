@@ -141,8 +141,9 @@ class AStar extends Quagent{
                     continue;
                 
                 // Calculate the g score
-				int wall_modifier = room.neighborIsWall(neighbor) ? 500 : 0;
+				int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
 				 wall_modifier = wall_modifier + (neighbor.isWall() ? 10000000 : 0);
+				 
 				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
                 Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
                 // If going through the current node is better than going
@@ -426,7 +427,7 @@ class AStar extends Quagent{
 							/*Guagent is stuck so unstick*/
 							if (dist < 1.0){
 								this.state = State.UNSTICKING;
-								target = room.getNearestUnexplored(location);
+								target = room.getIsolatedUnexplored(location, 200);
 								int random = rand.nextInt(270)+90;
 								this.turn(random);
 							}
@@ -439,7 +440,7 @@ class AStar extends Quagent{
                         
                         //Now we are facing the target so we can walk there
                         if (e.indexOf("turnby") >= 0) {
-                            this.walk(4*CELL_SIZE);
+                            this.walk(2*CELL_SIZE);
                         }
 						break;
                     case START:
@@ -491,7 +492,7 @@ class AStar extends Quagent{
                             }
                             //room.print();
                             //Attempt to go as far away as possible
-							target = room.getNearestUnexplored(location);
+							target = room.getIsolatedUnexplored(location, 200);
                             path = a_star(location, target);
                             state = State.SEARCHING;
                             
@@ -574,7 +575,7 @@ class AStar extends Quagent{
 
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
-								target = room.getNearestUnexplored(location);
+								target = room.getIsolatedUnexplored(location, 200);
 								followingTofu = false;
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
                                 path = a_star(location, target);
@@ -642,23 +643,28 @@ class AStar extends Quagent{
 										dist = temp_dist;
 										tofu_x = temp_tofu_x + x;
 										tofu_y = temp_tofu_y + y;
+										
 										angle = Math.toDegrees(Math.atan2(tofu_x, tofu_y)) - this.pitch;
 									}
 									//System.out.println("ANGLE: " + angle + " DIST: " + dist);
 								}
 							}
+							System.out.println("Tofu: "+fitToGrid(tofu_x)+", "+fitToGrid(tofu_y)+" "+followingTofu);
 							room.markExplored(location,200);
 							if(!tofuFound){
 								this.rays(16);
 							}
 							else{
-								System.out.println("Tofu: "+fitToGrid(tofu_x)+", "+fitToGrid(tofu_y)+" "+followingTofu);
+								
 								if (dist > 60)
 								{
 									if(!followingTofu){
-										target = new Cell(fitToGrid(tofu_x), fitToGrid(tofu_y));
-										path = a_star(location, target);
-										followingTofu = true;
+										Cell tofu_location = new Cell(fitToGrid(tofu_x), fitToGrid(tofu_y));
+										if(room.contains(tofu_location)){
+											followingTofu = true;
+											target = tofu_location;
+											path = a_star(location, target);
+										}
 									}
 								}
 								else{
