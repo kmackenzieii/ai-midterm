@@ -44,6 +44,10 @@ class Cell extends Point {
 	public void setContents(Contents c){
         this.contents = c;
     }
+    
+    public int heuristic (Cell c) {
+        return Math.abs(c.x - x) + Math.abs(c.y - y);
+    }
 	
     /**
      * Enumeration to describe the contents of a cell

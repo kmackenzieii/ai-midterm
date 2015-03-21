@@ -151,7 +151,7 @@ class AStar extends Quagent{
                     
                     cameFrom.put(neighbor, current);
                     g_score.put(neighbor, tentative_g_score);
-                    f_score.put(neighbor, new Integer(g_score.get(neighbor) + (int)neighbor.distance(goal)));
+                    f_score.put(neighbor, new Integer(g_score.get(neighbor) + (int)neighbor.heuristic(goal)));
                     
                     // Add the neighbor to the open list if it isn't already
                     if (!openset.contains(neighbor))
