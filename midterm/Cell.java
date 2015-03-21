@@ -41,6 +41,10 @@ class Cell extends Point {
         return contents;
     }
     
+	public void setContents(Contents c){
+        this.contents = c;
+    }
+	
     /**
      * Enumeration to describe the contents of a cell
      */

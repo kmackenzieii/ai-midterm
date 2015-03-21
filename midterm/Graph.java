@@ -6,7 +6,6 @@ import java.lang.*;
  *	is a connection between two cels
  */
 class Graph{
-    
     /**
      * Width of each cell
      */
@@ -70,105 +69,185 @@ class Graph{
         return vertices.contains(v);
     }
     
+	public boolean neighborIsWall(Cell v){
+		for(Cell neighbor : getNeighbors(v)){
+			if(neighbor.isWall()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
     /**
      * Add the passed in cell to the graph.
      */
     public void addVertex(Cell v){
         if(!this.contains(v)){
             vertices.add(v);
-            if(v.content() != Cell.Contents.WALL){
+            if(!v.isWall()){
                 unexplored.add(v);
             }
             edges.put(v, new ArrayList<Cell>());
             V++;
-            
-            addEdge(v, new Cell(v.x-cell_size, v.y-cell_size));
-            addEdge(v, new Cell(v.x-cell_size, v.y));
-            addEdge(v, new Cell(v.x-cell_size, v.y+cell_size));
-            
-            addEdge(v, new Cell(v.x, v.y-cell_size));
-            addEdge(v, new Cell(v.x, v.y+cell_size));
-            
-            addEdge(v, new Cell(v.x+cell_size, v.y-cell_size));
-            addEdge(v, new Cell(v.x+cell_size, v.y));
-            addEdge(v, new Cell(v.x+cell_size, v.y+cell_size));
         }
+				addEdge(v, new Cell(v.x-cell_size, v.y));
+			//addEdge(v, new Cell(v.x-cell_size, v.y-cell_size));
+			//addEdge(v, new Cell(v.x-cell_size, v.y+cell_size));
+		
+				addEdge(v, new Cell(v.x, v.y-cell_size));
+				
+				addEdge(v, new Cell(v.x, v.y+cell_size));
+			
+				addEdge(v, new Cell(v.x+cell_size, v.y));
+			//addEdge(v, new Cell(v.x+cell_size, v.y-cell_size));
+			//addEdge(v, new Cell(v.x+cell_size, v.y+cell_size));
+		
+		if(v.isWall()){
+			vertices.get(vertices.indexOf(v)).setContents(Cell.Contents.WALL);
+		}
+		//disconnectWalls();
     }
     
-    /**
-     * Adds a line according to Bresenham's algorithm
-     */
-    public void addLine(Cell w, Cell v){
-        int y0 = w.y / cell_size;
-        int y1 = v.y / cell_size;
-        int x0 = w.x / cell_size;
-        int x1 = v.x / cell_size;
-        
-        // If slope is outside the range [-1,1], swap x and y
-        boolean xy_swap = false;
-        if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
-            xy_swap = true;
-            int temp = x1;
-            x0 = y0;
-            y0 = temp;
-            temp = x1;
-            x1 = y1;
-            y1 = temp;
-        }
-        
-        // If line goes from right to left, swap the endpoints
-        if (x1 - x0 < 0) {
-            int temp = x0;
-            x0 = x1;
-            x1 = temp;
-            temp = y0;
-            y0 = y1;
-            y1 = temp;
-        }
-        
-        int deltax = x1 - x0;
-        int deltay = y1 - y0;
-        int d = 2*deltay - deltax;
-        int y = y0;
-        int xcoord, ycoord;
-        for (int x = x0+1; x<x1; x++) {
-            if(d>0){
-                y = y+1;
-                if(xy_swap){
-                    xcoord = y*cell_size+cell_size/2;
-                    ycoord = x*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord));
-                }
-                else {
-                    xcoord = x*cell_size+cell_size/2;
-                    ycoord = y*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord));
-                }
-                d = d + (2*deltay-2*deltax);
-            }
-            else{
-                if(xy_swap){
-                    xcoord = y*cell_size+cell_size/2;
-                    ycoord = x*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord));
-                }
-                else {
-                    xcoord = x*cell_size+cell_size/2;
-                    ycoord = y*cell_size+cell_size/2;
-                    addVertex(new Cell(xcoord, ycoord));
-                }
-                d = d + (2*deltay);
-            }
-        }
-    }
+	private void disconnectWalls(){
+		for(Cell v : vertices){
+			if(v.isWall()){
+				removeEdge(v, new Cell(v.x-cell_size, v.y));
+			
+				removeEdge(v, new Cell(v.x, v.y-cell_size));
+					
+				removeEdge(v, new Cell(v.x, v.y+cell_size));
+				
+				removeEdge(v, new Cell(v.x+cell_size, v.y));
+			}
+		}
+	}
+	
+	/**
+	 * Snap the number to a valid point index based on CELL_SIZE
+	 * Take into account sign of the point.
+	 */
+	private int gridToPoint(int num){
+		return (num*cell_size+cell_size/2);
+	}
+	
+	/**
+	 * Snap the number to a valid grid index based on CELL_SIZE
+	 * Take into account sign of the point.
+	 */
+	private int pointToGrid(int num){
+		return ((num-cell_size/2)/cell_size);
+	}
+	/**
+	 * Adds a line according to Bresenham's algorithm
+	 */
+	public void addLine(Cell c1, Cell c2){
+		int y0 = pointToGrid(c1.y);
+		int y1 = pointToGrid(c2.y);
+		int x0 = pointToGrid(c1.x);
+		int x1 = pointToGrid(c2.x);
+		// If slope is outside the range [-1,1], swap x and y
+		boolean xy_swap = false;
+		if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
+			xy_swap = true;
+			int temp = x0;
+			x0 = y0;
+			y0 = temp;
+			temp = x1;
+			x1 = y1;
+			y1 = temp;
+		}
+		
+		// If line goes from right to left, swap the endpoints
+		if (x0 - x1 > 0) {
+			int temp = x0;
+			x0 = x1;
+			x1 = temp;
+			temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}
+		
+		
+		int deltax = Math.abs(x1 - x0);
+		int deltay = Math.abs(y1 - y0);
+		int d = 2*deltay - deltax;
+		
+		if(xy_swap){
+			addVertex(new Cell(gridToPoint(y0), gridToPoint(x0)));
+			//System.out.println(y0+", "+x0);
+		}
+		else {
+			addVertex(new Cell(gridToPoint(x0), gridToPoint(y0)));
+			//System.out.println(x0+", "+y0);
+		}
+		
+		int y = y0;
+		for (int x = x0+1; x<x1+1; x++) {
+			if(d>0){
+				y = y+Integer.signum(y1-y0);
+				
+				if(d==1){
+					if(xy_swap){
+						addVertex(new Cell(gridToPoint(y-1), gridToPoint(x)));
+						//System.out.println(y+", "+x);
+					}
+					else {
+						addVertex(new Cell(gridToPoint(x), gridToPoint(y-1)));
+						//System.out.println(x+", "+y);
+					}
+				}
+				else{
+					if(xy_swap){
+						addVertex(new Cell(gridToPoint(y), gridToPoint(x-1)));
+						//System.out.println(y+", "+x);
+					}
+					else {
+						addVertex(new Cell(gridToPoint(x-1), gridToPoint(y)));
+						//System.out.println(x+", "+y);
+					}
+				}
+				
+				if(xy_swap){
+					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
+					//System.out.println(y+", "+x);
+				}
+				else {
+					addVertex(new Cell(gridToPoint(x), gridToPoint(y)));
+					//System.out.println(x+", "+y);
+				}
+				d = d + (2*deltay-2*deltax);
+			}
+			else{
+				if(xy_swap){
+					addVertex(new Cell(gridToPoint(y), gridToPoint(x)));
+					//System.out.println(y+", "+x);
+				}
+				else {
+					addVertex(new Cell(gridToPoint(x), gridToPoint(y)));
+					//System.out.println(x+", "+y);
+				}
+				d = d + (2*deltay);
+			}
+		}
+		
+	} 
     
     /**
      * Marks a cell as being explored by removing it from the
      * unexplored list
      */
     public void markExplored(Cell v){
-        if(unexplored.contains(v)){
-            unexplored.remove(v);
+		unexplored.remove(v);
+    }
+    
+    public void markExplored(Cell v, int radius) {
+        ArrayList<Cell> toMark = new ArrayList<Cell>();
+        for (Cell u : unexplored) {
+            if (v.distance(u) < radius)
+                toMark.add(u);
+        }
+        for (Cell m : toMark) {
+            markExplored(m);
         }
     }
     
@@ -187,6 +266,36 @@ class Graph{
         return ret;
     }
     
+    /**
+     * Returns the unexplored cell nearest to cell v
+     */
+    public Cell getNearestUnexplored(Cell v){
+        double distance = Double.MAX_VALUE;
+        Cell ret = null;
+        for(Cell w : unexplored){
+            // Anything within 200 clicks will have been explored
+            //  by the time we reach it
+            if(v.distance(w) <= distance && v.distance(w) >= 200){
+                distance = v.distance(w);
+                ret = w;
+            }
+        }
+        return ret;
+    }
+	
+	/**
+     * Returns true if the cell has not been explored
+     */
+    public boolean isUnexplored(Cell v){
+        boolean isUnexplored = false;
+        for(Cell w : unexplored){
+            if(v.equals(w)){
+                isUnexplored=true;
+            }
+        }
+        return isUnexplored;
+    }
+	
     
     /**
      * Create an edge between the passed in cells (vertices)
@@ -207,8 +316,7 @@ class Graph{
      * Remove the edge between the passed in cells (vertices)
      */
     public void removeEdge(Cell w, Cell v){
-        if(this.contains(w) && this.contains(v)
-           && edges.get(w).contains(v)) {
+        if(this.contains(w) && this.contains(v)) {
             E--;
             edges.get(w).remove(v);
             edges.get(v).remove(w);
@@ -231,11 +339,15 @@ class Graph{
     
     public Cell getCellAtIndex(int x, int y) {
         for (Cell c : vertices)
-            if (c.x == (x * cell_size) && c.y == (y * cell_size))
+            if (c.x == (gridToPoint(x)) && c.y == (gridToPoint(y)))
                 return c;
         return null;
     }
     
+	public void printUnexplored(){
+		System.out.println("# Unexplored: "+unexplored.size());
+	}
+	
     /**
      * Prints every vertex in the map as well as the neighbors for each.
      */
@@ -277,20 +389,71 @@ class Graph{
         
         // Do the printing (space for unseen, . for unexplored, + for explored,
         //  # for walls
-        System.out.println("MAP: ");
+        System.out.println("MAP: ");
         Cell current;
         for (int row = lowerBound; row <= upperBound; row += cell_size) {
             for (int col = leftBound; col <= rightBound; col += cell_size) {
                 current = getCellAt(col, row);
                 if (current != null) {
                     if (current.isWall())
-                        System.out.print("# ");
+                        System.out.print("#");
                     else if (unexplored.contains(current))
-                        System.out.print(". ");
+                        System.out.print(".");
                     else
-                        System.out.print("+ ");
+                        System.out.print("+");
                 } else {
-                    System.out.print("  ");
+                    System.out.print(" ");
+                }
+            }
+            System.out.print("\n");
+        }
+    }
+	
+	/**
+     * Print the map of Ms and Os
+     */
+    public void printMap(Stack<Cell> path)
+    {
+        // Figure out the current bounds of the map
+        Cell leftmost = vertices.get(0);
+        Cell rightmost = vertices.get(0);
+        Cell topmost = vertices.get(0);
+        Cell bottommost = vertices.get(0);
+        
+        for (Cell v : vertices) {
+            if (v.x < leftmost.x)
+                leftmost = v;
+            if (v.x > rightmost.x)
+                rightmost = v;
+            if (v.y > topmost.y)
+                topmost = v;
+            if (v.y < bottommost.y)
+                bottommost = v;
+        }
+        
+        int leftBound = leftmost.x;
+        int rightBound = rightmost.x;
+        int upperBound = topmost.y;
+        int lowerBound = bottommost.y;
+        
+        // Do the printing (space for unseen, . for unexplored, + for explored,
+        //  # for walls
+        System.out.println("MAP: ");
+        Cell current;
+        for (int row = lowerBound; row <= upperBound; row += cell_size) {
+            for (int col = leftBound; col <= rightBound; col += cell_size) {
+                current = getCellAt(col, row);
+                if (current != null) {
+					if(path.contains(current))
+						System.out.print("O");
+                    else if (current.isWall())
+                        System.out.print("#");
+                    else if (unexplored.contains(current))
+                        System.out.print(".");
+                    else
+                        System.out.print("+");
+                } else {
+                    System.out.print(" ");
                 }
             }
             System.out.print("\n");

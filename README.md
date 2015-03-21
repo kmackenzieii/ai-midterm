@@ -5,19 +5,21 @@
 	-Uses rays to map room
 	-Parses rays and fills in knoweldge of room
 	-Maintains list of explored/unexplored locations
-	-Chooses farthest unexplored location as exploration goal
+	-Chooses nearest unexplored location outside of its radius of sight
 	-Travels using A* algorithm
+
+![screenshot](https://raw.githubusercontent.com/kmackenzieii/ai-midterm/master/Mapping.tiff)
 
 #BUGS
 	-The framework looks like it has a hard time dealing with lots of rays
 		We probably only need to use 8, max
-	--The quagent stops responding for an unclear reason. Seems to be associated with large rays requests
-		I'm pretty sure this happens because it quagents can miss events. If it has an empty queue, it will get stuck.
+	-Getting stuck in corners is still a big problem
 
 #TODO
 	-Make smoother paths, i.e. stop less frequently
-		This should be fixed by indiscretization, needs to be tested
+		In order to do this, there needs to be some core restructuring. The current system requires frequent
+		stopping to call rays
+		
 	-Don't get stuck on corners
 	-Actually pick up tofu
-	-Make better decisions of where to travel to
-	-Test indiscretized pathfinding
+
