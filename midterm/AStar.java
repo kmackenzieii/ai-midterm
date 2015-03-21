@@ -141,8 +141,8 @@ class AStar extends Quagent{
                     continue;
                 
                 // Calculate the g score
-				int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
-				 wall_modifier = wall_modifier + (neighbor.isWall() ? 10000000 : 0);
+				//int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
+				int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
 				 
 				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
                 Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
@@ -458,7 +458,7 @@ class AStar extends Quagent{
 								this.turn(random);
 							}
 							else{
-								path = a_star(location, target);
+								path = smoothStraightaways(location, target);
 								this.state = State.SEARCHING;
 								this.where();
 							}
@@ -519,13 +519,13 @@ class AStar extends Quagent{
                             //room.print();
                             //Attempt to go as far away as possible
 							target = room.getIsolatedUnexplored(location, 200);
-                            path = a_star(location, target);
+                            path = smoothStraightaways(location, target);
                             state = State.SEARCHING;
                             
                             //If we don't have a path, find a new one
                             if(path == null){
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = a_star(location, target);
+                                path = smoothStraightaways(location, target);
 								//path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
@@ -689,7 +689,7 @@ class AStar extends Quagent{
 										if(room.contains(tofu_location)){
 											followingTofu = true;
 											target = tofu_location;
-											path = a_star(location, target);
+											path = smoothStraightaways(location, target);
 										}
 									}
 								}
