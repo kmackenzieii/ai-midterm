@@ -163,10 +163,36 @@ class AStar extends Quagent{
         return null;
     }
     
+    private Stack<Cell> smoothStraightaways(Cell start, Cell goal) {
+        Stack<Cell> path = a_star(start, goal);
+        if (path.size() < 5)
+            return path;
+        Stack<Cell> smoothed = new Stack<Cell>();
+        Cell current = path.pop();
+        Cell next = current;
+        Cell looking = path.pop();
+        smoothed.push(current);
+        while (!looking.equals(goal)) {
+            while (!looking.equals(goal) &&
+                   (looking.x==current.x || looking.y==current.y)) {
+                next = looking;
+                looking = path.pop();
+            }
+            if (!looking.equals(goal))
+                smoothed.push(next);
+            current = next;
+        }
+        smoothed.push(goal);
+        while (!smoothed.isEmpty())
+            path.push(smoothed.pop());
+        return path;
+    }
+    
     private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
+        if (path.size() < 5)
+            return path;
         Stack<Cell> indiscretized = new Stack<Cell>();
-        
         Cell current = path.pop();
         Cell next = current;
         Cell looking = path.pop();
@@ -577,7 +603,7 @@ class AStar extends Quagent{
 								target = room.getNearestUnexplored(location);
 								followingTofu = false;
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = a_star(location, target);
+                                path = smoothStraightaways(location, target);
 								//path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
