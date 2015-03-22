@@ -287,10 +287,12 @@ class Graph{
         for (Cell c : vertices) {
             int nearby_compare = 0;
             if (!c.isWall()) {
-                for (Cell n : vertices){
-                    if (c.distance(n) < radius && !n.isWall() &&
-                        getNeighbors(n).size() < 4)
-                        nearby_compare++;
+                for (int i = pointToGrid(v.x)-5; i < pointToGrid(v.x)+5; i++) {
+                    for (int j = pointToGrid(v.y)-5; j < pointToGrid(v.y)+5; j++) {
+                        if (!this.contains(new Cell(gridToPoint(i),gridToPoint(j)))) {
+                            nearby_compare++;
+                        }
+                    }
                 }
                 if(nearby_compare > nearby_unseen){
                     nearby_unseen = nearby_compare;
