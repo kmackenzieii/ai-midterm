@@ -360,6 +360,8 @@ class Graph{
      */
     public void addEdge(Cell w, Cell v){
         if(this.contains(w) && this.contains(v)){
+            w = getCounterpart(w);
+            v = getCounterpart(v);
             E++;
             if(!edges.get(w).contains(v)){
                 edges.get(w).add(v);
@@ -386,6 +388,13 @@ class Graph{
      */
     public ArrayList<Cell> getNeighbors(Cell v){
         return edges.get(v);
+    }
+    
+    public Cell getCounterpart(Cell c) {
+        if (vertices.contains(c)) {
+            return getCellAt(c.x, c.y);
+        }
+        return null;
     }
     
     public Cell getCellAt(int x, int y) {
@@ -506,6 +515,8 @@ class Graph{
                         System.out.print("O");
                     else if (current.isWall())
                         System.out.print("#");
+                    else if (neighborIsWall(current))
+                        System.out.print("%");
                     else if (unexplored.contains(current))
                         System.out.print(".");
                     else
