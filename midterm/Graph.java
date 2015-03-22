@@ -287,8 +287,8 @@ class Graph{
         for (Cell c : vertices) {
             int nearby_compare = 0;
             if (!c.isWall()) {
-                for (int i = pointToGrid(v.x)-5; i < pointToGrid(v.x)+5; i++) {
-                    for (int j = pointToGrid(v.y)-5; j < pointToGrid(v.y)+5; j++) {
+                for (int i = pointToGrid(c.x)-5; i < pointToGrid(c.x)+5; i++) {
+                    for (int j = pointToGrid(c.y)-5; j < pointToGrid(c.y)+5; j++) {
                         if (!this.contains(new Cell(gridToPoint(i),gridToPoint(j)))) {
                             nearby_compare++;
                         }
