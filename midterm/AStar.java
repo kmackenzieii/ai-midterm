@@ -604,7 +604,10 @@ class AStar extends Quagent{
 
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
-								target = room.getIsolatedUnexplored(location, 200);
+                                if (room.numUnexplored() > room.V()/2)
+                                    target = room.getIsolatedUnexplored(location, 200);
+                                else
+                                    target = room.getIsolatedUnseen(location, 100);
 								followingTofu = false;
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
                                 path = smoothStraightaways(location, target);

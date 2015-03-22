@@ -62,6 +62,10 @@ class Graph{
         return E;
     }
     
+    public int numUnexplored() {
+        return unexplored.size();
+    }
+    
     /**
      * Determines whether the graph contains the passed in cell
      */
@@ -273,7 +277,30 @@ class Graph{
         }
         return ret;
     }
-	
+    
+    /**
+     * Return closest cell with the most unseen in its neighborhood
+     */
+    public Cell getIsolatedUnseen(Cell v, int radius){
+        Cell ret = null;
+        int nearby_unseen = 0;
+        for (Cell c : vertices) {
+            int nearby_compare = 0;
+            if (!c.isWall()) {
+                for (Cell n : vertices){
+                    if (c.distance(n) < radius && !n.isWall() &&
+                        getNeighbors(n).size() < 4)
+                        nearby_compare++;
+                }
+                if(nearby_compare > nearby_unseen){
+                    nearby_unseen = nearby_compare;
+                    ret = c;
+                }
+            }
+        }
+        return ret;
+    }
+    
     /**
      * Returns the unexplored cell farthest from cell v
      */
