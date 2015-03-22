@@ -104,8 +104,8 @@ class Graph{
         
         if(v.isWall()){
             vertices.get(vertices.indexOf(v)).setContents(Cell.Contents.WALL);
+            disconnectWalls();
         }
-        //disconnectWalls();
     }
     
     private void disconnectWalls(){
@@ -251,28 +251,28 @@ class Graph{
         }
     }
     
-	
-	/**
-	 * Return closest, most unexplored cell
-	 */
-	public Cell getIsolatedUnexplored(Cell v, int radius){
-		Cell ret = null;
-		int nearby_unexplored = 0;
-		double distance = Double.MAX_VALUE;
-		for (Cell u : unexplored) {
-			int nearby_compare = 0;
-			for (Cell u2 : unexplored){
-				if (u.distance(u2) < radius)
-					nearby_compare++;
-			}
-			if(nearby_compare > nearby_unexplored && v.distance(u) < distance){
-				nearby_unexplored = nearby_compare;
-				distance = v.distance(u);
-				ret = u;
-			}
+    
+    /**
+     * Return closest, most unexplored cell
+     */
+    public Cell getIsolatedUnexplored(Cell v, int radius){
+        Cell ret = null;
+        int nearby_unexplored = 0;
+        double distance = Double.MAX_VALUE;
+        for (Cell u : unexplored) {
+            int nearby_compare = 0;
+            for (Cell u2 : unexplored){
+                if (u.distance(u2) < radius)
+                    nearby_compare++;
+            }
+            if(nearby_compare > nearby_unexplored && v.distance(u) < distance){
+                nearby_unexplored = nearby_compare;
+                distance = v.distance(u);
+                ret = u;
+            }
         }
-		return ret;
-	}
+        return ret;
+    }
 	
     /**
      * Returns the unexplored cell farthest from cell v
@@ -355,7 +355,7 @@ class Graph{
     }
     
     /**
-     * Returns the neighbors of the passed in cell, as defined by the it's edges
+     * Returns the neighbors of the passed in cell, as defined by the its edges
      */
     public ArrayList<Cell> getNeighbors(Cell v){
         return edges.get(v);
