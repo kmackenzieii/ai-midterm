@@ -140,15 +140,15 @@ class AStar extends Quagent{
                 if (closedset.contains(neighbor))
                     continue;
                 
-                if (neighbor.isWall())
-                    continue;
+                //if (neighbor.isWall())
+                //    continue;
                 
-                if (room.neighborIsWall(neighbor))
-                    continue;
+                //if (room.neighborIsWall(neighbor))
+                //    continue;
                 
                 // Calculate the g score
-				int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
-                //int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
+				//int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
+                int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
 				 
 				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
                 Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
@@ -172,7 +172,8 @@ class AStar extends Quagent{
     
     private Stack<Cell> smoothStraightaways(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-        if (path.size() < 5)
+			
+        if (path == null || path.size() < 5)
             return path;
         Stack<Cell> smoothed = new Stack<Cell>();
         Cell current = path.pop();
@@ -477,16 +478,17 @@ class AStar extends Quagent{
 						if (e.indexOf("STOPPED") >= 0) {
 							String[] tokens = e.split("[()\\s]+");
 							double dist = Double.parseDouble(tokens[2]);
-							System.out.println(dist);
+							
 							/*Guagent is stuck so unstick*/
 							if (dist < 1.0){
 								this.state = State.UNSTICKING;
+								
 								target = room.getIsolatedUnexplored(location, 200);
 								int random = rand.nextInt(270)+90;
 								this.turn(random);
 							}
 							else{
-								path = smoothStraightaways(location, target);
+								path = a_star(location, target);
 								this.state = State.SEARCHING;
 								this.where();
 							}
@@ -558,8 +560,9 @@ class AStar extends Quagent{
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null){
-                                System.out.println("No path");
-                                System.exit(0);
+								path.push(last_location);
+                                //System.out.println("No path");
+                                //System.exit(0);
                             }
                             //We have a path, so pop off the next location and go there
                             if(!path.isEmpty()){
@@ -629,18 +632,19 @@ class AStar extends Quagent{
 
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
-                                if (room.numUnexplored() > room.V()/2)
+                                //if (room.numUnexplored() > room.V()/2)
                                     target = room.getIsolatedUnexplored(location, 200);
-                                else
-                                    target = room.getIsolatedUnseen(location, 100);
+                                //else
+                                //    target = room.getIsolatedUnseen(location, 100);
 								followingTofu = false;
-                                //path = smoothStraightaways(location, target);
-                                path = indiscretize(location, target);
+                                path = smoothStraightaways(location, target);
+                                //path = indiscretize(location, target);
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null || path.isEmpty()){
-                                System.out.println("No path");
-                                System.exit(0);
+									path.push(last_location);
+                                //System.out.println("No path");
+                                //System.exit(0);
                             }
                             //We have a path, so pop off the next location and go there
                             if(!path.isEmpty()){
@@ -665,10 +669,14 @@ class AStar extends Quagent{
 								room.removeEdge(location, next);
 								this.state = State.UNSTICKING;
 								int random = rand.nextInt(270)+90;
-								path=null;
+								target = room.getIsolatedUnexplored(location, 200);
+								
+								path=a_star(location, target);
 								this.turn(random);
 							}
-                            this.where();
+							else {
+								this.where();
+							}
                         }
                         
                         //Now we are facing the target so we can walk there

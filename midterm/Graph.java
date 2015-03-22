@@ -108,7 +108,7 @@ class Graph{
         
         if(v.isWall()){
             vertices.get(vertices.indexOf(v)).setContents(Cell.Contents.WALL);
-            //disconnectWalls();
+            disconnectWalls();
         }
     }
     
@@ -269,7 +269,7 @@ class Graph{
                 if (u.distance(u2) < radius)
                     nearby_compare++;
             }
-            if(nearby_compare > nearby_unexplored && v.distance(u) < distance){
+            if(nearby_compare > nearby_unexplored){// && v.distance(u) < distance){
                 nearby_unexplored = nearby_compare;
                 distance = v.distance(u);
                 ret = u;
