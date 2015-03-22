@@ -143,6 +143,9 @@ class AStar extends Quagent{
                 if (neighbor.isWall())
                     continue;
                 
+                if (room.neighborIsWall(neighbor))
+                    continue;
+                
                 // Calculate the g score
 				int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
                 //int wall_modifier = (neighbor.isWall() ? 10000000 : 0);

@@ -9,7 +9,7 @@ class Graph{
     /**
      * Width of each cell
      */
-    private final int cell_size;
+    private static int cell_size;
     
     /**
      * Array list of vertices
@@ -130,7 +130,7 @@ class Graph{
      * Snap the number to a valid point index based on CELL_SIZE
      * Take into account sign of the point.
      */
-    private int gridToPoint(int num){
+    public static int gridToPoint(int num){
         return (num*cell_size+cell_size/2);
     }
     
@@ -138,7 +138,7 @@ class Graph{
      * Snap the number to a valid grid index based on CELL_SIZE
      * Take into account sign of the point.
      */
-    private int pointToGrid(int num){
+    public static int pointToGrid(int num){
         return ((num-cell_size/2)/cell_size);
     }
     /**
