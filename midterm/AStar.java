@@ -172,7 +172,7 @@ class AStar extends Quagent{
     
     private Stack<Cell> smoothStraightaways(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-        if (path.size() < 5)
+        if (path == null || path.size() < 5)
             return path;
         Stack<Cell> smoothed = new Stack<Cell>();
         Cell current = path.pop();
@@ -197,7 +197,7 @@ class AStar extends Quagent{
     
     private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-        if (path.size() < 5)
+        if (path == null || path.size() < 5)
             return path;
         Stack<Cell> indiscretized = new Stack<Cell>();
         Cell current = path.pop();
