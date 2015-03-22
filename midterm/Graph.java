@@ -9,7 +9,7 @@ class Graph{
     /**
      * Width of each cell
      */
-    private final int cell_size;
+    private static int cell_size;
     
     /**
      * Array list of vertices
@@ -62,6 +62,10 @@ class Graph{
         return E;
     }
     
+    public int numUnexplored() {
+        return unexplored.size();
+    }
+    
     /**
      * Determines whether the graph contains the passed in cell
      */
@@ -104,7 +108,7 @@ class Graph{
         
         if(v.isWall()){
             vertices.get(vertices.indexOf(v)).setContents(Cell.Contents.WALL);
-            disconnectWalls();
+            //disconnectWalls();
         }
     }
     
@@ -126,7 +130,7 @@ class Graph{
      * Snap the number to a valid point index based on CELL_SIZE
      * Take into account sign of the point.
      */
-    private int gridToPoint(int num){
+    public static int gridToPoint(int num){
         return (num*cell_size+cell_size/2);
     }
     
@@ -134,7 +138,7 @@ class Graph{
      * Snap the number to a valid grid index based on CELL_SIZE
      * Take into account sign of the point.
      */
-    private int pointToGrid(int num){
+    public static int pointToGrid(int num){
         return ((num-cell_size/2)/cell_size);
     }
     /**
@@ -273,7 +277,30 @@ class Graph{
         }
         return ret;
     }
-	
+    
+    /**
+     * Return closest cell with the most unseen in its neighborhood
+     */
+    public Cell getIsolatedUnseen(Cell v, int radius){
+        Cell ret = null;
+        int nearby_unseen = 0;
+        for (Cell c : vertices) {
+            int nearby_compare = 0;
+            if (!c.isWall()) {
+                for (Cell n : vertices){
+                    if (c.distance(n) < radius && !n.isWall() &&
+                        getNeighbors(n).size() < 4)
+                        nearby_compare++;
+                }
+                if(nearby_compare > nearby_unseen){
+                    nearby_unseen = nearby_compare;
+                    ret = c;
+                }
+            }
+        }
+        return ret;
+    }
+    
     /**
      * Returns the unexplored cell farthest from cell v
      */
@@ -471,7 +498,7 @@ class Graph{
         //  # for walls
         System.out.println("MAP: ");
         Cell current;
-        for (int row = lowerBound; row <= upperBound; row += cell_size) {
+        for (int row = upperBound; row >= lowerBound; row -= cell_size) {
             for (int col = leftBound; col <= rightBound; col += cell_size) {
                 current = getCellAt(col, row);
                 if (current != null) {

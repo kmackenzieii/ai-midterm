@@ -11,6 +11,7 @@
 ![screenshot](https://raw.githubusercontent.com/kmackenzieii/ai-midterm/master/Mapping.tiff)
 
 #BUGS
+	-NULL POINTER EXCEPTIONS
 	-The framework looks like it has a hard time dealing with lots of rays
 		We probably only need to use 8, max
 	-Getting stuck in corners is still a big problem

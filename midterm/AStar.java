@@ -140,9 +140,15 @@ class AStar extends Quagent{
                 if (closedset.contains(neighbor))
                     continue;
                 
+                if (neighbor.isWall())
+                    continue;
+                
+                if (room.neighborIsWall(neighbor))
+                    continue;
+                
                 // Calculate the g score
-				//int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
-				int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
+				int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
+                //int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
 				 
 				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
                 Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
@@ -222,10 +228,10 @@ class AStar extends Quagent{
         Stack<Cell> line = new Stack<Cell>();
         
         // Get endpoint coordinates
-        int y1 = fitToGrid(c1.y);
-        int y2 = fitToGrid(c2.y);
-        int x1 = fitToGrid(c1.x);
-        int x2 = fitToGrid(c2.x);
+        int y1 = Graph.pointToGrid(c1.y);
+        int y2 = Graph.pointToGrid(c2.y);
+        int x1 = Graph.pointToGrid(c1.x);
+        int x2 = Graph.pointToGrid(c2.x);
         
         // loop counter
         int i;
@@ -251,6 +257,8 @@ class AStar extends Quagent{
         
         // first point
         Cell c = room.getCellAtIndex(x1, y1);
+        if (c == null)
+            c = new Cell(0, 0, Cell.Contents.WALL);
         if (c != null)
             line.push(c);
         
@@ -293,26 +301,36 @@ class AStar extends Quagent{
                     // Bottom
                     if (error + errorprev < ddx) {
                         c = room.getCellAtIndex(x, y-ystep);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                     }
                     // Left
                     else if (error + errorprev > ddx) {
                         c = room.getCellAtIndex(x-xstep, y);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                     }
                     // Both (crosses corner exactly)
                     else {
                         c = room.getCellAtIndex(x, y-ystep);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                         c = room.getCellAtIndex(x-xstep, y);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                     }
                 }
                 c = room.getCellAtIndex(x, y);
+                if (c == null)
+                    c = new Cell(0, 0, Cell.Contents.WALL);
                 if (c != null)
                     line.push(c);
                 errorprev = error;
@@ -330,24 +348,34 @@ class AStar extends Quagent{
                     error -= ddy;
                     if (error + errorprev < ddy) {
                         c = room.getCellAtIndex(x-xstep, y);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                     }
                     else if (error + errorprev > ddy) {
                         c = room.getCellAtIndex(x, y-ystep);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                     }
                     else{
                         c = room.getCellAtIndex(x, y-ystep);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                         c = room.getCellAtIndex(x-xstep, y);
+                        if (c == null)
+                            c = new Cell(0, 0, Cell.Contents.WALL);
                         if (c != null)
                             line.push(c);
                     }
                 }
                 c = room.getCellAtIndex(x, y);
+                if (c == null)
+                    c = new Cell(0, 0, Cell.Contents.WALL);
                 if (c != null)
                     line.push(c);
                 errorprev = error;
@@ -601,11 +629,13 @@ class AStar extends Quagent{
 
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
-								target = room.getIsolatedUnexplored(location, 200);
+                                if (room.numUnexplored() > room.V()/2)
+                                    target = room.getIsolatedUnexplored(location, 200);
+                                else
+                                    target = room.getIsolatedUnseen(location, 100);
 								followingTofu = false;
-                                //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = smoothStraightaways(location, target);
-								//path = indiscretize(location, room.getFarthestUnexplored(location));
+                                //path = smoothStraightaways(location, target);
+                                path = indiscretize(location, target);
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null || path.isEmpty()){
