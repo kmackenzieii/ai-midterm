@@ -104,7 +104,7 @@ class Graph{
         
         if(v.isWall()){
             vertices.get(vertices.indexOf(v)).setContents(Cell.Contents.WALL);
-            disconnectWalls();
+            //disconnectWalls();
         }
     }
     
