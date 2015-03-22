@@ -144,8 +144,8 @@ class AStar extends Quagent{
                     continue;
                 
                 // Calculate the g score
-				//int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
-				int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
+				int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
+                //int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
 				 
 				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
                 Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
@@ -609,9 +609,8 @@ class AStar extends Quagent{
                                 else
                                     target = room.getIsolatedUnseen(location, 100);
 								followingTofu = false;
-                                //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = smoothStraightaways(location, target);
-								//path = indiscretize(location, room.getFarthestUnexplored(location));
+                                //path = smoothStraightaways(location, target);
+                                path = indiscretize(location, target);
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null || path.isEmpty()){

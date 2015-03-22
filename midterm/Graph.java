@@ -500,7 +500,7 @@ class Graph{
         //  # for walls
         System.out.println("MAP: ");
         Cell current;
-        for (int row = lowerBound; row <= upperBound; row += cell_size) {
+        for (int row = upperBound; row >= lowerBound; row -= cell_size) {
             for (int col = leftBound; col <= rightBound; col += cell_size) {
                 current = getCellAt(col, row);
                 if (current != null) {
