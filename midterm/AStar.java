@@ -91,6 +91,7 @@ class AStar extends Quagent{
         public void run() {
 			try{
 				AStar.this.where();
+				kickDog();
 			}
 			catch (QDiedException er) { // the quagent died -- catch that exception
                 System.out.println("bot died!");
@@ -160,8 +161,9 @@ class AStar extends Quagent{
             openset.remove(current);
             closedset.add(current);
             
-            //System.out.println("Hey " + current);
-            
+            if(room.getNeighbors(current) == null){
+				return null;
+			}
             // Go through each neighbor of the cell
             for (Cell neighbor : room.getNeighbors(current)){
                 
@@ -581,14 +583,15 @@ class AStar extends Quagent{
                             //room.print();
                             //Attempt to go as far away as possible
 							target = room.getIsolatedUnexplored(location, 200);
-                            path = smoothStraightaways(location, target);
+                            //path = smoothStraightaways(location, target);
+							path = indiscretize(location, room.getFarthestUnexplored(location));
                             state = State.SEARCHING;
                             
                             //If we don't have a path, find a new one
                             if(path == null){
                                 //System.out.println("Destination: " + room.getFarthestUnexplored(location));
-                                path = smoothStraightaways(location, target);
-								//path = indiscretize(location, room.getFarthestUnexplored(location));
+                                //path = smoothStraightaways(location, target);
+								path = indiscretize(location, room.getFarthestUnexplored(location));
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null){
@@ -758,9 +761,10 @@ class AStar extends Quagent{
 									if(!followingTofu){
 										Cell tofu_location = new Cell(fitToGrid(tofu_x), fitToGrid(tofu_y));
 										if(room.contains(tofu_location)){
-											followingTofu = true;
 											target = tofu_location;
-											path = smoothStraightaways(location, target);
+											path = indiscretize(location, target);
+											followingTofu = true;
+											
 										}
 									}
 								}
@@ -783,6 +787,7 @@ class AStar extends Quagent{
             }
             catch (Exception er) { // something else went wrong???
                 System.out.println("system failure: "+er);
+				er.printStackTrace();
                 System.exit(0);
             }
         }
