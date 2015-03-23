@@ -12,6 +12,11 @@ class AStar extends Quagent{
      */
     final static int CELL_SIZE = 16;
     
+	/**
+	 * Watchdog timer in case the Quagent stops responding.
+	 */
+	private Timer watchdog;
+	
     /**
      * Graph to hold a map of the room
      */
@@ -79,6 +84,30 @@ class AStar extends Quagent{
      */
     private State state = State.START;
     
+	
+	private class WatchdogTask extends TimerTask {
+
+        @Override
+        public void run() {
+			try{
+				AStar.this.where();
+			}
+			catch (QDiedException er) { // the quagent died -- catch that exception
+                System.out.println("bot died!");
+            }
+            catch (Exception er) { // something else went wrong???
+                System.out.println("system failure: "+er);
+                System.exit(0);
+            }
+        }
+    }
+	
+	private void kickDog(){
+		watchdog.cancel();
+		watchdog = new Timer();
+		watchdog.schedule(new WatchdogTask(), 10*1000);
+	}
+	
     /**
      * Actual implementation of the A* algorithm
      */
@@ -140,15 +169,12 @@ class AStar extends Quagent{
                 if (closedset.contains(neighbor))
                     continue;
                 
-                //if (neighbor.isWall())
-                //    continue;
-                
-                //if (room.neighborIsWall(neighbor))
-                //    continue;
+                if (neighbor.isWall())
+                    continue;
                 
                 // Calculate the g score
-				//int wall_modifier = room.neighborIsWall(neighbor) ? 50 : 0;
-                int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
+				int wall_modifier = room.neighborIsWall(neighbor) ? 50000 : 0;
+                //int wall_modifier = (neighbor.isWall() ? 10000000 : 0);
 				 
 				//int exploration_modifier = room.isUnexplored(neighbor) ? 4 : 1;
                 Integer tentative_g_score = new Integer((g_score.get(current) + (int)current.distance(neighbor) + wall_modifier));
@@ -172,7 +198,6 @@ class AStar extends Quagent{
     
     private Stack<Cell> smoothStraightaways(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-			
         if (path == null || path.size() < 5)
             return path;
         Stack<Cell> smoothed = new Stack<Cell>();
@@ -198,7 +223,7 @@ class AStar extends Quagent{
     
     private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
-        if (path.size() < 5)
+        if (path == null || path.size() < 5)
             return path;
         Stack<Cell> indiscretized = new Stack<Cell>();
         Cell current = path.pop();
@@ -425,10 +450,14 @@ class AStar extends Quagent{
      */
     AStar() throws Exception {
         super();
+		watchdog = new Timer();
+		watchdog.schedule(new WatchdogTask(), 10*1000);
+		
         try {
             // connect to a new quagent
             
             this.where();
+			
             // loop forever -- that is until the bot dies of old age
             while(true) {
                 // handle the events
@@ -476,19 +505,19 @@ class AStar extends Quagent{
                 switch (this.state) {
 					case UNSTICKING:
 						if (e.indexOf("STOPPED") >= 0) {
+							kickDog();
 							String[] tokens = e.split("[()\\s]+");
 							double dist = Double.parseDouble(tokens[2]);
-							
+							System.out.println(dist);
 							/*Guagent is stuck so unstick*/
 							if (dist < 1.0){
 								this.state = State.UNSTICKING;
-								
 								target = room.getIsolatedUnexplored(location, 200);
 								int random = rand.nextInt(270)+90;
 								this.turn(random);
 							}
 							else{
-								path = a_star(location, target);
+								path = smoothStraightaways(location, target);
 								this.state = State.SEARCHING;
 								this.where();
 							}
@@ -496,11 +525,13 @@ class AStar extends Quagent{
                         
                         //Now we are facing the target so we can walk there
                         if (e.indexOf("turnby") >= 0) {
+							kickDog();
                             this.walk(2*CELL_SIZE);
                         }
 						break;
                     case START:
                         if (e.indexOf("getwhere") >= 0) {
+							kickDog();
                             String[] tokens = e.split("[()\\s]+");
                             
                             x = Double.parseDouble(tokens[3]);
@@ -526,6 +557,7 @@ class AStar extends Quagent{
                         }
                         
                         if (e.indexOf("rays") >= 0) {
+							kickDog();
                             String[] tokens = e.split("[()\\s]+");
                             for (int i = 0; i<((tokens.length - 4)/5); i++){
                                 int base = 5+5*i;
@@ -560,9 +592,8 @@ class AStar extends Quagent{
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null){
-								path.push(last_location);
-                                //System.out.println("No path");
-                                //System.exit(0);
+                                System.out.println("No path");
+                                System.exit(0);
                             }
                             //We have a path, so pop off the next location and go there
                             if(!path.isEmpty()){
@@ -577,6 +608,7 @@ class AStar extends Quagent{
                         break;
                     case SEARCHING:
                         if (e.indexOf("getwhere") >= 0) {
+							kickDog();
                             String[] tokens = e.split("[()\\s]+");
                             
                             x = Double.parseDouble(tokens[3]);
@@ -605,6 +637,7 @@ class AStar extends Quagent{
                         
                         
                         if (e.indexOf("rays") >= 0) {
+							kickDog();
                             String[] tokens = e.split("[()\\s]+");
                             for (int i = 0; i<((tokens.length - 4)/5); i++){
                                 int base = 5+5*i;
@@ -632,19 +665,18 @@ class AStar extends Quagent{
 
                             //If we don't have a path, find a new one
                             if(path == null || path.isEmpty()){
-                                //if (room.numUnexplored() > room.V()/2)
+                                if (room.numUnexplored() > room.V()/2)
                                     target = room.getIsolatedUnexplored(location, 200);
-                                //else
-                                //    target = room.getIsolatedUnseen(location, 100);
+                                else
+                                    target = room.getIsolatedUnseen(location, 100);
 								followingTofu = false;
-                                path = smoothStraightaways(location, target);
-                                //path = indiscretize(location, target);
+                                //path = smoothStraightaways(location, target);
+                                path = indiscretize(location, target);
                             }
                             //If there is still no path, one doesn't exist. Self destruct
                             if(path == null || path.isEmpty()){
-									path.push(last_location);
-                                //System.out.println("No path");
-                                //System.exit(0);
+                                System.out.println("No path");
+                                System.exit(0);
                             }
                             //We have a path, so pop off the next location and go there
                             if(!path.isEmpty()){
@@ -661,6 +693,7 @@ class AStar extends Quagent{
                         
 						
                         if (e.indexOf("STOPPED") >= 0) {
+							kickDog();
 							String[] tokens = e.split("[()\\s]+");
 							double dist = Double.parseDouble(tokens[2]);
 							//System.out.println(dist);
@@ -669,18 +702,17 @@ class AStar extends Quagent{
 								room.removeEdge(location, next);
 								this.state = State.UNSTICKING;
 								int random = rand.nextInt(270)+90;
-								target = room.getIsolatedUnexplored(location, 200);
-								
-								path=a_star(location, target);
+								path=null;
 								this.turn(random);
 							}
-							else {
+							else{
 								this.where();
 							}
                         }
                         
                         //Now we are facing the target so we can walk there
                         if (e.indexOf("turnby") >= 0) {
+							kickDog();
                             double x2 = next.x - x;
                             double y2 = next.y - y;
                             double dist = Math.sqrt(x2*x2 + y2*y2);
@@ -689,6 +721,7 @@ class AStar extends Quagent{
 						
 						
 						if(e.indexOf("ask radius") >= 0){
+							kickDog();
 							double tofu_x=0;
 							double tofu_y=0;
 							double dist = Double.MAX_VALUE;
