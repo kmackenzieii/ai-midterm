@@ -26,10 +26,16 @@ class Cell extends Point {
         this.contents = contents;
     }
     
+    /**
+     *  Returns true if the cell contains a wall
+     */
     public boolean isWall() {
         return (contents == Contents.WALL);
     }
     
+    /**
+     * Returns true if the passed in cell has the same coordinates as this one
+     */
     public boolean equals(Cell c) {
         return x == c.x && y == c.y;
     }
@@ -41,10 +47,16 @@ class Cell extends Point {
         return contents;
     }
     
+    /**
+     * Returns the contents of this cell
+     */
 	public void setContents(Contents c){
         this.contents = c;
     }
     
+    /**
+     * Returns the manhatten disticane between the passed in cell and this one
+     */
     public int heuristic (Cell c) {
         return Math.abs(c.x - x) + Math.abs(c.y - y);
     }

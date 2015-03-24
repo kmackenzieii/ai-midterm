@@ -390,6 +390,10 @@ class Graph{
         return edges.get(v);
     }
     
+    /**
+     * If the passed in cell has the same coordinates as another cell in the 
+     *  map, return that cell
+     */
     public Cell getCounterpart(Cell c) {
         if (vertices.contains(c)) {
             return getCellAt(c.x, c.y);
@@ -397,6 +401,9 @@ class Graph{
         return null;
     }
     
+    /**
+     * Return the cell at the passed in coordinates
+     */
     public Cell getCellAt(int x, int y) {
         for (Cell c : vertices)
             if (c.x == x && c.y == y)
@@ -404,6 +411,9 @@ class Graph{
         return null;
     }
     
+    /**
+     * Return the cell at the passed in index
+     */
     public Cell getCellAtIndex(int x, int y) {
         for (Cell c : vertices)
             if (c.x == (gridToPoint(x)) && c.y == (gridToPoint(y)))

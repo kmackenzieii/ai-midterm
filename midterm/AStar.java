@@ -84,9 +84,10 @@ class AStar extends Quagent{
      */
     private State state = State.START;
     
-	
+	/**
+     * The thread to wake up the quagent if it becomes unresponsive
+     */
 	private class WatchdogTask extends TimerTask {
-
         @Override
         public void run() {
 			try{
@@ -103,6 +104,9 @@ class AStar extends Quagent{
         }
     }
 	
+    /**
+     * Quagent is awake, don't revive
+     */
 	private void kickDog(){
 		watchdog.cancel();
 		watchdog = new Timer();
@@ -198,6 +202,8 @@ class AStar extends Quagent{
         return null;
     }
     
+    // Produces path identical to the A* algorithm, but without cells between
+    // points on a horizontal or vertical line
     private Stack<Cell> smoothStraightaways(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
         if (path == null || path.size() < 5)
@@ -223,6 +229,7 @@ class AStar extends Quagent{
         return path;
     }
     
+    // Produces an optimal path through a continuous space
     private Stack<Cell> indiscretize(Cell start, Cell goal) {
         Stack<Cell> path = a_star(start, goal);
         if (path == null || path.size() < 5)
@@ -250,6 +257,10 @@ class AStar extends Quagent{
         return path;
     }
     
+    /**
+     * Returns all the cells that the line between the passed in cells 
+     *  intersects, using the supercover version of the bresenham algorithm
+     */
     private Stack<Cell> bresenham(Cell c1, Cell c2) {
         
         // Stack to hold the cells
@@ -448,7 +459,7 @@ class AStar extends Quagent{
     }
     
     /**
-     *
+     * Contructor sets the Quagent running
      */
     AStar() throws Exception {
         super();
